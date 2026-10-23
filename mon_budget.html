@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f4f6f5" id="meta-theme-color">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mon Budget">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Application personnelle de gestion de budget. Données stockées uniquement sur cet appareil.">
+<title>Mon Budget</title>
+<!-- Icône intégrée (SVG en data URI) : aucune ressource externe -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b5d3b'/%3E%3Cpath d='M18 40l10-10 8 8 12-14' stroke='%233ee08f' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* =====================================================================
+   1. THÈME : variables de couleurs (clair par défaut, sombre automatique
+      selon le téléphone, ou forcé via data-theme sur <html>)
+   ===================================================================== */
+:root {
+  --bg: #f3f5f4;
+  --bg-blur: rgba(243, 245, 244, 0.82);
+  --surface: #ffffff;
+  --surface-2: #eef2f0;
+  --text: #0f1a15;
+  --muted: #5d6a64;
+  --border: #e1e7e4;
+  --track: #e4eae7;
+  --primary: #0b5d3b;
+  --primary-text: #0b5d3b;
+  --on-primary: #ffffff;
+  --accent: #1aa866;
+  --accent-soft: rgba(26, 168, 102, 0.12);
+  --saving: #0e7c86;
+  --saving-soft: rgba(14, 124, 134, 0.12);
+  --danger: #c93c3c;
+  --danger-soft: rgba(201, 60, 60, 0.1);
+  --warning: #b77900;
+  --warning-soft: rgba(183, 121, 0, 0.12);
+  --hero: linear-gradient(140deg, #0d6b44 0%, #0a4a31 55%, #062c1d 100%);
+  --shadow: 0 1px 2px rgba(10, 30, 20, 0.04), 0 6px 20px rgba(10, 30, 20, 0.05);
+  --radius: 20px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0e0c;
+    --bg-blur: rgba(10, 14, 12, 0.8);
+    --surface: #141a17;
+    --surface-2: #1c2420;
+    --text: #e8eeeb;
+    --muted: #93a29b;
+    --border: #232d28;
+    --track: #26312c;
+    --primary: #2fcf85;
+    --primary-text: #48dd96;
+    --on-primary: #04170e;
+    --accent: #3ad78e;
+    --accent-soft: rgba(58, 215, 142, 0.14);
+    --saving: #4cc3cc;
+    --saving-soft: rgba(76, 195, 204, 0.14);
+    --danger: #ff7070;
+    --danger-soft: rgba(255, 112, 112, 0.12);
+    --warning: #f0b440;
+    --warning-soft: rgba(240, 180, 64, 0.14);
+    --hero: linear-gradient(140deg, #0f5b3b 0%, #0a3a27 55%, #06231a 100%);
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0e0c;
+  --bg-blur: rgba(10, 14, 12, 0.8);
+  --surface: #141a17;
+  --surface-2: #1c2420;
+  --text: #e8eeeb;
+  --muted: #93a29b;
+  --border: #232d28;
+  --track: #26312c;
+  --primary: #2fcf85;
+  --primary-text: #48dd96;
+  --on-primary: #04170e;
+  --accent: #3ad78e;
+  --accent-soft: rgba(58, 215, 142, 0.14);
+  --saving: #4cc3cc;
+  --saving-soft: rgba(76, 195, 204, 0.14);
+  --danger: #ff7070;
+  --danger-soft: rgba(255, 112, 112, 0.12);
+  --warning: #f0b440;
+  --warning-soft: rgba(240, 180, 64, 0.14);
+  --hero: linear-gradient(140deg, #0f5b3b 0%, #0a3a27 55%, #06231a 100%);
+  --shadow: none;
+}
+
+/* =====================================================================
+   2. BASE
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 1.05rem; font-weight: 700; }
+h3 { font-size: 0.95rem; font-weight: 650; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--primary-text); }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+.tiny { font-size: 0.75rem; }
+.pos { color: var(--accent); }
+.neg { color: var(--danger); }
+.sav { color: var(--saving); }
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+/* =====================================================================
+   3. STRUCTURE : barre de navigation (bas sur mobile, côté sur grand écran)
+   ===================================================================== */
+.banner {
+  background: var(--warning-soft); color: var(--text); border-bottom: 1px solid var(--warning);
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px; font-size: 0.9rem;
+}
+.banner strong { color: var(--warning); }
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  padding: calc(env(safe-area-inset-top) + 12px) 16px 10px;
+  background: var(--bg-blur);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+}
+.topbar-inner { max-width: 1100px; margin: 0 auto; }
+.topbar-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.view-title { font-size: 1.65rem; font-weight: 760; letter-spacing: -0.025em; outline: none; }
+.month-switch {
+  display: inline-flex; align-items: center; gap: 2px; margin-top: 10px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 3px;
+}
+.month-switch button {
+  border: 0; background: none; min-width: 44px; height: 40px; border-radius: 11px; font-weight: 650;
+}
+.month-switch button:hover { background: var(--surface-2); }
+.month-switch .month-label { min-width: 150px; padding: 0 8px; }
+.icon-btn {
+  width: 44px; height: 44px; flex: none; border-radius: 14px; border: 1px solid var(--border);
+  background: var(--surface); display: inline-grid; place-items: center;
+}
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn:hover { background: var(--surface-2); }
+
+main { max-width: 1100px; margin: 0 auto; padding: 4px 16px calc(110px + env(safe-area-inset-bottom)); }
+.view { animation: fade 0.18s ease-out; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .view { animation: none; } * { transition: none !important; } }
+
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; justify-content: space-around; gap: 2px;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  background: var(--bg-blur);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-top: 1px solid var(--border);
+}
+.tabbar .brand { display: none; }
+.tab {
+  flex: 1; min-height: 54px; border: 0; background: none; border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: var(--muted); font-size: 0.68rem; font-weight: 650;
+}
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--primary-text); }
+.fab {
+  position: fixed; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 31;
+  width: 60px; height: 60px; border-radius: 20px; border: 0;
+  background: var(--primary); color: var(--on-primary);
+  box-shadow: 0 8px 24px rgba(11, 93, 59, 0.35);
+  display: grid; place-items: center;
+}
+.fab svg { width: 28px; height: 28px; }
+
+@media (min-width: 900px) {
+  .app-shell { padding-left: 240px; }
+  .tabbar {
+    top: 0; right: auto; width: 240px; flex-direction: column; justify-content: flex-start;
+    padding: 28px 14px; border-top: 0; border-right: 1px solid var(--border); gap: 4px;
+  }
+  .tabbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 760; font-size: 1.15rem; padding: 0 10px 22px; }
+  .tab { flex: none; flex-direction: row; justify-content: flex-start; gap: 12px; padding: 0 14px; font-size: 0.95rem; min-height: 48px; }
+  .tab[aria-current="page"] { background: var(--accent-soft); }
+  .fab { bottom: 28px; right: 28px; }
+  main { padding-bottom: 48px; }
+}
+
+/* =====================================================================
+   4. COMPOSANTS : cartes, statistiques, barres de progression, boutons
+   ===================================================================== */
+.grid { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 900px) {
+  .grid-dash { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .span-2 { grid-column: span 2; }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.stack > * + * { margin-top: 12px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px; box-shadow: var(--shadow); min-width: 0;
+}
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.hero { background: var(--hero); color: #fff; border: 0; padding: 22px 20px; }
+.hero .label { color: rgba(255, 255, 255, 0.78); font-size: 0.88rem; font-weight: 550; }
+.hero .amount { font-size: clamp(2rem, 9vw, 2.7rem); font-weight: 760; letter-spacing: -0.035em; margin: 4px 0 2px; }
+.hero .sub { color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; }
+.hero-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+.hero-row div { background: rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; min-width: 0; }
+.hero-row span { display: block; font-size: 0.72rem; color: rgba(255, 255, 255, 0.75); }
+.hero-row strong { display: block; font-size: clamp(0.8rem, 3.5vw, 0.95rem); white-space: normal; overflow-wrap: anywhere; }
+.hero .neg-hero { color: #ffb3b3; }
+
+.stat { background: var(--surface-2); border-radius: 16px; padding: 12px 14px; min-width: 0; }
+.stat .label { font-size: 0.78rem; color: var(--muted); font-weight: 550; }
+.stat .value { font-size: 1.15rem; font-weight: 720; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; }
+.big { font-size: 1.7rem; font-weight: 760; letter-spacing: -0.03em; }
+
+.progress { height: 8px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.progress > span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.3s; }
+.progress.warn > span { background: var(--warning); }
+.progress.over > span { background: var(--danger); }
+.progress.sav > span { background: var(--saving); }
+.progress.lg { height: 12px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px;
+  font-size: 0.72rem; font-weight: 700; background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+}
+.badge.over { background: var(--danger-soft); color: var(--danger); }
+.badge.warn { background: var(--warning-soft); color: var(--warning); }
+.badge.sav { background: var(--saving-soft); color: var(--saving); }
+
+.alert-card { border: 1px solid var(--danger); background: var(--danger-soft); }
+.alert-card h2 { color: var(--danger); }
+.alert-card ul { margin: 8px 0 0; padding-left: 20px; }
+.info-card { background: var(--accent-soft); border-color: transparent; }
+.warn-card { background: var(--warning-soft); border-color: transparent; }
+
+.btn {
+  min-height: 48px; padding: 0 18px; border-radius: 14px; border: 1px solid var(--border);
+  background: var(--surface-2); font-weight: 650; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn:hover { filter: brightness(0.97); }
+.btn-primary { background: var(--primary); color: var(--on-primary); border-color: transparent; }
+.btn-danger { background: var(--danger); color: #fff; border-color: transparent; }
+.btn-ghost { background: none; border-color: transparent; color: var(--primary-text); padding: 0 10px; }
+.btn-sm { min-height: 44px; padding: 0 14px; font-size: 0.9rem; }
+.btn-block { width: 100%; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.cat-icon {
+  width: 40px; height: 40px; flex: none; border-radius: 12px; background: var(--surface-2);
+  display: grid; place-items: center; font-size: 1.15rem;
+}
+.cat-icon.sav { background: var(--saving-soft); }
+.cat-icon.inc { background: var(--accent-soft); }
+
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row .grow { flex: 1; min-width: 0; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list > li + li { border-top: 1px solid var(--border); }
+.cat-line { padding: 10px 0; }
+.cat-line .top { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: 0.92rem; }
+
+.empty { text-align: center; padding: 22px 8px; color: var(--muted); }
+.empty .btn { margin-top: 12px; }
+
+/* Opérations */
+.filters { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+.filters .full { grid-column: 1 / -1; }
+@media (min-width: 700px) { .filters { grid-template-columns: 2fr 1fr 1fr 1fr; } .filters .full { grid-column: auto; } }
+.day-head { font-size: 0.8rem; font-weight: 650; color: var(--muted); text-transform: capitalize; padding: 14px 4px 4px; }
+.op-row { display: flex; align-items: center; gap: 4px; }
+.op-main {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; text-align: left;
+  background: none; border: 0; padding: 8px 4px; min-height: 60px; border-radius: 14px;
+}
+.op-main .grow { flex: 1; min-width: 0; }
+.op-main:hover { background: var(--surface-2); }
+.op-amount { font-weight: 700; }
+.op-del { width: 44px; height: 44px; border: 0; background: none; border-radius: 12px; color: var(--muted); display: grid; place-items: center; flex: none; }
+.op-del:hover { background: var(--danger-soft); color: var(--danger); }
+.op-del svg { width: 20px; height: 20px; }
+.totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+/* Segments (onglets / choix de type) */
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); border: 0; margin: 0; }
+.seg button, .seg label { flex: 1; display: flex; min-width: 0; }
+.seg button { border: 0; background: none; min-height: 44px; border-radius: 11px; align-items: center; justify-content: center; font-weight: 650; font-size: 0.9rem; color: var(--muted); }
+.seg button[aria-pressed="true"], .seg button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg label span { flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 11px; font-weight: 650; font-size: 0.82rem; color: var(--muted); padding: 2px 4px; line-height: 1.15; cursor: pointer; }
+.seg input:checked + span { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.seg input:focus-visible + span { outline: 3px solid var(--accent); }
+
+/* Formulaires */
+.field { display: block; }
+.field > span, .field-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+.input, select.input {
+  width: 100%; min-height: 48px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--border);
+  background: var(--surface-2); font-size: 16px; /* 16px : évite le zoom automatique d'iOS */
+  -webkit-appearance: none; appearance: none;
+}
+select.input {
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 36px;
+}
+input[type="date"].input { display: flex; align-items: center; }
+.input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.amount-input { font-size: 1.6rem !important; font-weight: 700; min-height: 60px; text-align: center; }
+.form-error { color: var(--danger); font-size: 0.88rem; font-weight: 600; min-height: 1px; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 0.92rem; }
+.check input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--primary); flex: none; }
+.form-grid { display: grid; gap: 14px; }
+
+/* Enveloppes */
+.env-card .env-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 10px 0 10px; font-size: 0.85rem; }
+.env-card .env-figs span { display: block; color: var(--muted); font-size: 0.72rem; }
+.env-card .env-figs strong { display: block; }
+.env-edit { margin-top: 10px; }
+.env-summary { position: sticky; top: calc(env(safe-area-inset-top) + 64px); z-index: 5; }
+.env-summary.is-over { border-color: var(--danger); }
+.env-grid { display: grid; gap: 12px; }
+@media (min-width: 700px) { .env-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Graphiques */
+.chart { width: 100%; height: auto; display: block; max-height: 300px; }
+.chart text { fill: var(--muted); font-size: 10px; font-family: inherit; }
+.chart .val { fill: var(--text); font-weight: 650; }
+.chart .bar { fill: var(--accent); }
+.chart .bar.over { fill: var(--danger); }
+.chart .budget-line { stroke: var(--muted); stroke-dasharray: 4 4; stroke-width: 1; }
+.chart .axis { stroke: var(--border); stroke-width: 1; }
+.chart .line { fill: none; stroke: var(--saving); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart .area { fill: var(--saving-soft); }
+.chart .dot { fill: var(--surface); stroke: var(--saving); stroke-width: 2.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.78rem; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.cmp-bars { display: grid; gap: 4px; }
+.cmp-bars .progress { height: 7px; }
+.cmp-bars .planned > span { background: var(--muted); opacity: 0.45; }
+
+/* Réglages / aide */
+details.help { border-top: 1px solid var(--border); }
+details.help:first-of-type { border-top: 0; }
+details.help summary { cursor: pointer; padding: 14px 0; font-weight: 650; list-style: none; display: flex; justify-content: space-between; gap: 8px; min-height: 44px; }
+details.help summary::-webkit-details-marker { display: none; }
+details.help summary::after { content: "+"; color: var(--muted); font-weight: 400; font-size: 1.3rem; line-height: 1; }
+details.help[open] summary::after { content: "–"; }
+details.help .content { padding: 0 0 16px; font-size: 0.92rem; }
+details.help ol, details.help ul { padding-left: 20px; margin: 6px 0; }
+details.help li + li { margin-top: 4px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 0.92rem; }
+.kv + .kv { border-top: 1px solid var(--border); }
+
+/* Boîtes de dialogue (feuilles en bas d'écran sur mobile) */
+dialog {
+  border: 0; padding: 0; border-radius: 24px; background: var(--surface); color: var(--text);
+  width: min(540px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+dialog::backdrop { background: rgba(5, 15, 10, 0.5); }
+.dlg-body { padding: 22px 20px calc(20px + env(safe-area-inset-bottom)); }
+.dlg-body h2 { font-size: 1.25rem; margin-bottom: 16px; }
+.dlg-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+@media (max-width: 600px) {
+  dialog { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: 24px 24px 0 0; max-height: 92dvh; }
+}
+
+/* Notifications */
+.toast-wrap { position: fixed; left: 0; right: 0; bottom: calc(150px + env(safe-area-inset-bottom)); z-index: 50; display: flex; justify-content: center; pointer-events: none; padding: 0 16px; }
+@media (min-width: 900px) { .toast-wrap { bottom: 32px; padding-left: 256px; } }
+.toast {
+  pointer-events: auto; max-width: 520px; background: #13221b; color: #fff; padding: 12px 14px 12px 16px;
+  border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); display: flex; align-items: center; gap: 12px; font-size: 0.92rem;
+}
+.toast.warn { background: #6b4400; }
+.toast.error { background: #8a2323; }
+.toast button { background: rgba(255,255,255,0.16); color: #fff; border: 0; min-height: 40px; padding: 0 14px; border-radius: 10px; font-weight: 700; flex: none; }
+</style>
+</head>
+<body>
+<noscript><p style="padding:20px">Cette application a besoin de JavaScript pour fonctionner.</p></noscript>
+
+<!-- Avertissement si le stockage local n'est pas disponible -->
+<div id="storage-banner" class="banner" role="alert" hidden>
+  <strong>Stockage local indisponible.</strong>
+  Vos données ne pourront pas être conservées après la fermeture (navigation privée, aperçu de fichier ou stockage bloqué).
+  Pensez à exporter vos données en JSON depuis Réglages.
+</div>
+
+<div class="app-shell">
+  <!-- Navigation principale -->
+  <nav class="tabbar" aria-label="Navigation principale">
+    <div class="brand" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#0b5d3b"/><path d="M18 40l10-10 8 8 12-14" stroke="#3ee08f" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Mon Budget
+    </div>
+    <button class="tab" type="button" data-action="nav" data-view="dashboard" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span>Accueil</span>
+    </button>
+    <button class="tab" type="button" data-action="nav" data-view="operations">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+      <span>Opérations</span>
+    </button>
+    <button class="tab" type="button" data-action="nav" data-view="budget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M7 15h3"/></svg>
+      <span>Budget</span>
+    </button>
+    <button class="tab" type="button" data-action="nav" data-view="goals">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+      <span>Objectifs</span>
+    </button>
+    <button class="tab" type="button" data-action="nav" data-view="stats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      <span>Stats</span>
+    </button>
+    <button class="tab" type="button" data-action="nav" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span>Réglages</span>
+    </button>
+  </nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-row">
+        <h1 class="view-title" id="view-title" tabindex="-1">Tableau de bord</h1>
+      </div>
+      <div class="month-switch" id="month-switch" role="group" aria-label="Choix du mois affiché">
+        <button type="button" data-action="month-prev" aria-label="Mois précédent">‹</button>
+        <button type="button" class="month-label" id="month-label" data-action="month-today" aria-label="Revenir au mois en cours">—</button>
+        <button type="button" data-action="month-next" aria-label="Mois suivant">›</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="view" id="view-dashboard" aria-labelledby="view-title"></section>
+
+    <section class="view" id="view-operations" aria-labelledby="view-title" hidden>
+      <!-- Filtres : rendus une seule fois pour conserver le focus pendant la saisie -->
+      <div class="filters" role="search">
+        <label class="field full"><span class="sr-only">Rechercher une opération</span>
+          <input class="input" type="search" id="f-search" placeholder="Rechercher (description, catégorie, montant)" autocomplete="off">
+        </label>
+        <label class="field"><span class="sr-only">Filtrer par mois</span>
+          <select class="input" id="f-month"></select>
+        </label>
+        <label class="field"><span class="sr-only">Filtrer par catégorie</span>
+          <select class="input" id="f-cat"></select>
+        </label>
+        <label class="field"><span class="sr-only">Filtrer par type</span>
+          <select class="input" id="f-type">
+            <option value="all">Tous les types</option>
+            <option value="expense">Dépenses</option>
+            <option value="saving">Transferts vers l'épargne</option>
+            <option value="income">Revenus supplémentaires</option>
+          </select>
+        </label>
+      </div>
+      <div id="ops-results" aria-live="polite"></div>
+    </section>
+
+    <section class="view" id="view-budget" aria-labelledby="view-title" hidden></section>
+    <section class="view" id="view-goals" aria-labelledby="view-title" hidden></section>
+    <section class="view" id="view-stats" aria-labelledby="view-title" hidden></section>
+    <section class="view" id="view-settings" aria-labelledby="view-title" hidden></section>
+  </main>
+
+  <button class="fab" type="button" data-action="add-op" aria-label="Ajouter une opération">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>
+
+<!-- ===== Boîte de dialogue : ajout / modification d'une opération ===== -->
+<dialog id="dlg-op" aria-labelledby="dlg-op-title">
+  <form id="form-op" class="dlg-body" novalidate>
+    <h2 id="dlg-op-title">Nouvelle opération</h2>
+    <div class="form-grid">
+      <fieldset class="seg" id="op-type-group">
+        <legend class="sr-only">Type d'opération</legend>
+        <label><input type="radio" name="op-type" value="expense" checked><span>Dépense</span></label>
+        <label><input type="radio" name="op-type" value="income"><span>Revenu supp.</span></label>
+        <label><input type="radio" name="op-type" value="saving"><span>Vers épargne</span></label>
+      </fieldset>
+      <p class="small muted" id="op-type-help"></p>
+      <label class="field"><span>Montant (€)</span>
+        <input class="input amount-input num" id="op-amount" inputmode="decimal" autocomplete="off" placeholder="0,00" required aria-describedby="op-error">
+      </label>
+      <label class="field"><span>Date</span>
+        <input class="input" type="date" id="op-date" required>
+      </label>
+      <label class="field"><span>Catégorie</span>
+        <select class="input" id="op-cat" required></select>
+      </label>
+      <label class="field"><span>Description (facultatif)</span>
+        <input class="input" id="op-desc" maxlength="200" autocomplete="off" placeholder="Ex. : supermarché, plein d'essence…">
+      </label>
+      <p class="form-error" id="op-error" role="alert"></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="dlg-close">Annuler</button>
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ===== Boîte de dialogue : modification d'un objectif ===== -->
+<dialog id="dlg-goal" aria-labelledby="dlg-goal-title">
+  <form id="form-goal" class="dlg-body" novalidate>
+    <h2 id="dlg-goal-title">Modifier l'objectif</h2>
+    <input type="hidden" id="goal-id">
+    <div class="form-grid">
+      <label class="field"><span>Nom de l'objectif</span>
+        <input class="input" id="goal-name" maxlength="60" required>
+      </label>
+      <label class="field"><span>Montant cible (€)</span>
+        <input class="input num" id="goal-target" inputmode="decimal" autocomplete="off">
+      </label>
+      <label class="field"><span>Versement mensuel prévu (€)</span>
+        <input class="input num" id="goal-monthly" inputmode="decimal" autocomplete="off">
+      </label>
+      <label class="field"><span>Échéance (facultatif)</span>
+        <input class="input" type="date" id="goal-deadline">
+      </label>
+      <label class="field"><span>Solde de départ de cette épargne (€)</span>
+        <input class="input num" id="goal-start" inputmode="decimal" autocomplete="off">
+      </label>
+      <label class="check"><input type="checkbox" id="goal-include-start">
+        <span>Compter le solde de départ dans la progression (décochez si l'objectif porte sur un montant <em>supplémentaire</em>).</span>
+      </label>
+      <p class="form-error" id="goal-error" role="alert"></p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="dlg-close">Annuler</button>
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ===== Boîte de dialogue : première utilisation ===== -->
+<dialog id="dlg-setup" aria-labelledby="dlg-setup-title">
+  <form id="form-setup" class="dlg-body" novalidate>
+    <h2 id="dlg-setup-title">Bienvenue 👋</h2>
+    <p class="muted small" style="margin-bottom:16px">Indiquez vos montants de départ exacts. Ils restent uniquement sur cet appareil et pourront être modifiés plus tard dans Réglages.</p>
+    <div class="form-grid">
+      <label class="field"><span>Salaire net mensuel (€)</span>
+        <input class="input num" id="setup-salary" inputmode="decimal" autocomplete="off" value="1954,00">
+      </label>
+      <label class="field"><span>Épargne actuelle déjà réservée à la voiture (€)</span>
+        <input class="input num" id="setup-car" inputmode="decimal" autocomplete="off" placeholder="0,00">
+      </label>
+      <label class="field"><span>Épargne de sécurité actuelle (€)</span>
+        <input class="input num" id="setup-safety" inputmode="decimal" autocomplete="off" placeholder="0,00">
+      </label>
+      <p class="small muted">Laissez 0 si vous n'avez rien de côté pour l'un des deux. Les objectifs (4 200 € voiture, 600 € de sécurité supplémentaire sur 6 mois) sont modifiables dans « Mes objectifs ».</p>
+      <p class="form-error" id="setup-error" role="alert"></p>
+    </div>
+    <div style="margin-top:18px"><button type="submit" class="btn btn-primary btn-block">Commencer</button></div>
+  </form>
+</dialog>
+
+<!-- ===== Boîte de dialogue : confirmation ===== -->
+<dialog id="dlg-confirm" aria-labelledby="dlg-confirm-title" aria-describedby="dlg-confirm-msg">
+  <form method="dialog" class="dlg-body">
+    <h2 id="dlg-confirm-title">Confirmer</h2>
+    <p id="dlg-confirm-msg"></p>
+    <div class="dlg-actions">
+      <button type="submit" class="btn" value="cancel">Annuler</button>
+      <button type="submit" class="btn btn-danger" value="ok" id="dlg-confirm-ok">Confirmer</button>
+    </div>
+  </form>
+</dialog>
+
+<input type="file" id="import-file" accept=".json,application/json" hidden>
+<div class="toast-wrap" aria-live="polite" role="status" id="toast-wrap"></div>
+
+<script>
+'use strict';
+/* =======================================================================
+   MON BUDGET — application de gestion budgétaire personnelle
+   - Un seul fichier, aucune dépendance, aucune requête réseau.
+   - Tous les montants sont stockés en CENTIMES (entiers) pour éviter les
+     erreurs d'arrondi des nombres à virgule.
+   - Les dates sont stockées en chaînes "AAAA-MM-JJ" (date locale), jamais
+     converties via UTC, pour éviter les décalages de fuseau horaire.
+   ======================================================================= */
+(function () {
+  const APP_VERSION = '1.0.0';
+  const STORAGE_KEY = 'monBudget.v1';
+  const MAX_AMOUNT = 100000000; // 1 000 000,00 € en centimes : garde-fou
+
+  /* ---------- Catégories ---------- */
+  // fixed:true = dépense mensuelle fixe, exclue du budget hebdomadaire
+  const EXPENSE_CATS = [
+    { id: 'logement',  label: 'Logement et dépenses fixes',    icon: '🏠', fixed: true, def: 45000 },
+    { id: 'courses',   label: 'Courses et dépenses courantes', icon: '🛒', def: 25000 },
+    { id: 'credit',    label: 'Crédit',                        icon: '💳', fixed: true, def: 4700 },
+    { id: 'transport', label: 'Transport',                     icon: '🚌', def: 0 },
+    { id: 'loisirs',   label: 'Loisirs et sorties',            icon: '🎟️', def: 12000 },
+    { id: 'vetements', label: 'Vêtements et soins',            icon: '👕', def: 6000 },
+    { id: 'voyages',   label: 'Voyages et projets',            icon: '✈️', def: 5000 },
+    { id: 'imprevus',  label: 'Imprévus',                      icon: '🧰', def: 10000 },
+    { id: 'libre',     label: 'Argent libre',                  icon: '🎈', def: 7700 },
+    { id: 'autres',    label: 'Autres dépenses',               icon: '📦', def: 0 }
+  ];
+  const SAVING_CATS = [
+    { id: 'car',    label: 'Fonds voiture',       icon: '🚙' },
+    { id: 'safety', label: 'Épargne de sécurité', icon: '🛡️' },
+    { id: 'other',  label: 'Autres projets',      icon: '🎯' }
+  ];
+  const INCOME_CATS = [
+    { id: 'prime',         label: 'Prime ou bonus',      icon: '⭐' },
+    { id: 'remboursement', label: 'Remboursement reçu', icon: '↩️' },
+    { id: 'vente',         label: 'Vente',               icon: '🏷️' },
+    { id: 'autre_revenu',  label: 'Autre revenu',        icon: '💶' }
+  ];
+  const TYPES = {
+    expense: { label: 'Dépense', cats: EXPENSE_CATS },
+    income:  { label: 'Revenu supplémentaire', cats: INCOME_CATS },
+    saving:  { label: "Transfert vers l'épargne", cats: SAVING_CATS }
+  };
+  const CAT_INDEX = {};
+  Object.keys(TYPES).forEach(t => TYPES[t].cats.forEach(c => { CAT_INDEX[t + ':' + c.id] = c; }));
+  const catOf = (type, id) => CAT_INDEX[type + ':' + id] || { id: id, label: id, icon: '•' };
+
+  /* ---------- Utilitaires : sécurité ---------- */
+  // Échappe toute chaîne avant insertion dans le HTML (protection contre l'injection).
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  /* ---------- Utilitaires : argent (centimes) ---------- */
+  const nfEUR = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function fmt(cents) { return nfEUR.format((cents || 0) / 100); }
+  function fmtSigned(cents) { return (cents > 0 ? '+' : cents < 0 ? '−' : '') + fmt(Math.abs(cents)); }
+  // Format compact pour les graphiques : « 1,2 k€ »
+  function compact(cents) {
+    const e = cents / 100;
+    if (Math.abs(e) >= 1000) return (e / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' k€';
+    return Math.round(e).toLocaleString('fr-FR') + ' €';
+  }
+  /**
+   * Convertit une saisie utilisateur ("12,50", "1 954", "7.5") en centimes.
+   * Retourne null si la saisie n'est pas un montant valide.
+   * Conversion par découpage de chaîne (et non parseFloat * 100) : exacte.
+   */
+  function parseAmount(input, allowZero) {
+    let s = String(input == null ? '' : input).trim().replace(/[\s  €]/g, '').replace(',', '.');
+    if (s === '' && allowZero) return 0;
+    if (!/^\d+(\.\d{0,2})?$/.test(s)) return null;
+    const parts = s.split('.');
+    const cents = parseInt(parts[0], 10) * 100 + parseInt(((parts[1] || '') + '00').slice(0, 2), 10);
+    if (!Number.isSafeInteger(cents) || cents > MAX_AMOUNT) return null;
+    if (!allowZero && cents <= 0) return null;
+    return cents;
+  }
+  // Centimes -> texte éditable "12,50"
+  function toInput(cents) {
+    const abs = Math.abs(cents);
+    return (cents < 0 ? '-' : '') + Math.floor(abs / 100) + ',' + String(abs % 100).padStart(2, '0');
+  }
+  const sum = (arr, fn) => arr.reduce((a, x) => a + fn(x), 0);
+  const pct = (part, total) => total > 0 ? part / total : 0;
+  const fmtPct = r => Math.round(r * 100).toLocaleString('fr-FR') + ' %';
+
+  /* ---------- Utilitaires : dates locales "AAAA-MM-JJ" ---------- */
+  const pad2 = n => String(n).padStart(2, '0');
+  function toISO(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function todayISO() { return toISO(new Date()); }
+  function splitISO(s) { return s.split('-').map(Number); }
+  // Midi local : aucun risque de bascule de jour à cause de l'heure d'été.
+  function parseISO(s) { const [y, m, d] = splitISO(s); return new Date(y, m - 1, d, 12); }
+  function isValidISO(s) {
+    if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    const [y, m, d] = splitISO(s);
+    const dt = new Date(y, m - 1, d, 12);
+    return y >= 1970 && y <= 2200 && dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+  const monthOf = iso => iso.slice(0, 7);
+  function daysInMonth(key) { const [y, m] = splitISO(key); return new Date(y, m, 0).getDate(); }
+  function shiftMonth(key, n) {
+    const [y, m] = splitISO(key);
+    const idx = y * 12 + (m - 1) + n;
+    return Math.floor(idx / 12) + '-' + pad2((idx % 12) + 1);
+  }
+  function monthDiff(a, b) { const [ya, ma] = splitISO(a); const [yb, mb] = splitISO(b); return (yb * 12 + mb) - (ya * 12 + ma); }
+  function addMonthsISO(iso, n) {
+    const [y, m, d] = splitISO(iso);
+    const key = shiftMonth(y + '-' + pad2(m), n);
+    return key + '-' + pad2(Math.min(d, daysInMonth(key)));
+  }
+  function addDaysISO(iso, n) { const [y, m, d] = splitISO(iso); return toISO(new Date(y, m - 1, d + n, 12)); }
+  // Écart en jours calculé en UTC sur les composantes : insensible aux changements d'heure.
+  function dayDiff(a, b) {
+    const [ya, ma, da] = splitISO(a); const [yb, mb, db] = splitISO(b);
+    return Math.round((Date.UTC(yb, mb - 1, db) - Date.UTC(ya, ma - 1, da)) / 86400000);
+  }
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  function labelMonth(key) { const [y, m] = splitISO(key); return cap(new Date(y, m - 1, 1, 12).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })); }
+  function labelMonthShort(key) { const [y, m] = splitISO(key); return cap(new Date(y, m - 1, 1, 12).toLocaleDateString('fr-FR', { month: 'short' })).replace('.', ''); }
+  function labelDay(iso) { return parseISO(iso).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+  function labelDate(iso) { return parseISO(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  // Semaine du lundi au dimanche contenant la date donnée
+  function weekRange(iso) {
+    const d = parseISO(iso);
+    const dow = (d.getDay() + 6) % 7; // lundi = 0
+    const start = addDaysISO(iso, -dow);
+    return [start, addDaysISO(start, 6)];
+  }
+
+  function uid() { return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9); }
+
+  /* =======================================================================
+     ÉTAT ET PERSISTANCE
+     ======================================================================= */
+  function defaultState() {
+    const today = todayISO();
+    const budgets = {};
+    EXPENSE_CATS.forEach(c => { budgets[c.id] = c.def; });
+    return {
+      version: 1,
+      setupDone: false,
+      createdAt: today,
+      salary: 195400,
+      budgets: budgets,
+      goals: {
+        car:    { name: 'Ma voiture', target: 420000, monthly: 70000, deadline: addMonthsISO(today, 6), start: 0, includeStart: true },
+        safety: { name: 'Mon épargne de sécurité', target: 60000, monthly: 10000, deadline: addMonthsISO(today, 6), start: 0, includeStart: false },
+        other:  { name: 'Autres projets', target: 0, monthly: 0, deadline: '', start: 0, includeStart: true }
+      },
+      operations: [],
+      prefs: { theme: 'auto', lastExport: '' },
+      updatedAt: ''
+    };
+  }
+
+  const isInt = (v, min, max) => Number.isSafeInteger(v) && v >= min && v <= max;
+
+  /**
+   * Valide et normalise des données (chargement local ou import JSON).
+   * Retourne { ok, errors, state }. Aucune donnée invalide n'est acceptée.
+   */
+  function validateData(raw) {
+    const errors = [];
+    const err = m => { if (errors.length < 8) errors.push(m); };
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false, errors: ['Le fichier ne contient pas un objet de données valide.'] };
+    const src = (raw.app === 'mon_budget' && raw.data && typeof raw.data === 'object') ? raw.data : raw;
+    const out = defaultState();
+
+    if (!Array.isArray(src.operations)) err('La liste « operations » est absente ou invalide.');
+    if (src.salary !== undefined) { if (isInt(src.salary, 0, MAX_AMOUNT)) out.salary = src.salary; else err('Salaire invalide.'); }
+    if (src.createdAt !== undefined) { if (isValidISO(src.createdAt)) out.createdAt = src.createdAt; else err('Date de création invalide.'); }
+    out.setupDone = src.setupDone === undefined ? true : !!src.setupDone;
+
+    if (src.budgets !== undefined) {
+      if (!src.budgets || typeof src.budgets !== 'object') err('Budgets invalides.');
+      else EXPENSE_CATS.forEach(c => {
+        const v = src.budgets[c.id];
+        if (v === undefined) return;
+        if (isInt(v, 0, MAX_AMOUNT)) out.budgets[c.id] = v; else err('Budget invalide pour « ' + c.label + ' ».');
+      });
+    }
+    if (src.goals !== undefined) {
+      if (!src.goals || typeof src.goals !== 'object') err('Objectifs invalides.');
+      else SAVING_CATS.forEach(c => {
+        const g = src.goals[c.id];
+        if (g === undefined) return;
+        if (!g || typeof g !== 'object') { err('Objectif « ' + c.label + ' » invalide.'); return; }
+        const o = out.goals[c.id];
+        if (typeof g.name === 'string' && g.name.trim()) o.name = g.name.trim().slice(0, 60);
+        ['target', 'monthly', 'start'].forEach(k => {
+          if (g[k] === undefined) return;
+          if (isInt(g[k], 0, MAX_AMOUNT)) o[k] = g[k]; else err('Valeur « ' + k + ' » invalide pour « ' + c.label + ' ».');
+        });
+        if (g.deadline !== undefined) { if (g.deadline === '' || isValidISO(g.deadline)) o.deadline = g.deadline; else err('Échéance invalide pour « ' + c.label + ' ».'); }
+        if (g.includeStart !== undefined) o.includeStart = !!g.includeStart;
+      });
+    }
+    if (Array.isArray(src.operations)) {
+      const seen = new Set();
+      src.operations.forEach((op, i) => {
+        const n = 'Opération n° ' + (i + 1) + ' : ';
+        if (!op || typeof op !== 'object') { err(n + 'format invalide.'); return; }
+        if (!TYPES[op.type]) { err(n + 'type inconnu.'); return; }
+        if (!isInt(op.amount, 1, MAX_AMOUNT)) { err(n + 'montant invalide (doit être un entier positif en centimes).'); return; }
+        if (!isValidISO(op.date)) { err(n + 'date invalide.'); return; }
+        if (!CAT_INDEX[op.type + ':' + op.category]) { err(n + 'catégorie inconnue.'); return; }
+        if (op.description !== undefined && typeof op.description !== 'string') { err(n + 'description invalide.'); return; }
+        let id = typeof op.id === 'string' && op.id && op.id.length <= 64 ? op.id : uid();
+        if (seen.has(id)) id = uid();
+        seen.add(id);
+        out.operations.push({
+          id: id, type: op.type, amount: op.amount, date: op.date, category: op.category,
+          description: (op.description || '').trim().slice(0, 200),
+          createdAt: Number.isFinite(op.createdAt) ? op.createdAt : 0
+        });
+      });
+    }
+    if (src.prefs && typeof src.prefs === 'object') {
+      if (['auto', 'light', 'dark'].includes(src.prefs.theme)) out.prefs.theme = src.prefs.theme;
+      if (typeof src.prefs.lastExport === 'string') out.prefs.lastExport = src.prefs.lastExport.slice(0, 40);
+    }
+    return { ok: errors.length === 0, errors: errors, state: out };
+  }
+
+  // Vérifie que localStorage est réellement utilisable (navigation privée, aperçus…)
+  function storageAvailable() {
+    try { const k = '__mb_test__'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return true; }
+    catch (e) { return false; }
+  }
+  const storageOK = storageAvailable();
+  let state;
+  let loadError = '';
+
+  function load() {
+    if (!storageOK) return defaultState();
+    let raw = null;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return defaultState(); }
+    if (!raw) return defaultState();
+    try {
+      const res = validateData(JSON.parse(raw));
+      if (!res.ok) throw new Error(res.errors.join(' '));
+      return res.state;
+    } catch (e) {
+      // Données corrompues : on les met de côté au lieu de les écraser.
+      try { localStorage.setItem(STORAGE_KEY + '.corrompu.' + Date.now(), raw); } catch (e2) { /* ignoré */ }
+      loadError = 'Les données enregistrées étaient illisibles. Une copie a été conservée et l\'application a redémarré à zéro.';
+      return defaultState();
+    }
+  }
+
+  function save() {
+    state.updatedAt = new Date().toISOString();
+    if (!storageOK) return false;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); return true; }
+    catch (e) { toast('Échec de la sauvegarde locale (stockage plein ou bloqué). Exportez vos données.', 'error'); return false; }
+  }
+
+  /* =======================================================================
+     CALCULS
+     ======================================================================= */
+  const expenseBudget = () => sum(EXPENSE_CATS, c => state.budgets[c.id] || 0);
+  const plannedSavings = () => sum(SAVING_CATS, c => state.goals[c.id].monthly);
+  const envelopesTotal = () => expenseBudget() + plannedSavings();
+
+  // Synthèse d'un mois : les transferts d'épargne sont comptés à part, jamais comme dépenses.
+  function monthStats(key) {
+    const s = { income: 0, expenses: 0, savings: 0, byCat: {}, savByCat: {}, count: 0 };
+    state.operations.forEach(op => {
+      if (op.date.slice(0, 7) !== key) return;
+      s.count++;
+      if (op.type === 'expense') { s.expenses += op.amount; s.byCat[op.category] = (s.byCat[op.category] || 0) + op.amount; }
+      else if (op.type === 'saving') { s.savings += op.amount; s.savByCat[op.category] = (s.savByCat[op.category] || 0) + op.amount; }
+      else if (op.type === 'income') s.income += op.amount;
+    });
+    return s;
+  }
+  // Argent disponible sur le compte courant pour un mois donné
+  function availableOf(ms) { return state.salary + ms.income - ms.expenses - ms.savings; }
+
+  function contributions(goalId) {
+    return state.operations.filter(o => o.type === 'saving' && o.category === goalId);
+  }
+  function goalView(id) {
+    const g = state.goals[id];
+    const contrib = sum(contributions(id), o => o.amount);
+    const balance = g.start + contrib;
+    const progress = g.includeStart ? balance : contrib;
+    const remaining = Math.max(0, g.target - progress);
+    return { g: g, contrib: contrib, balance: balance, progress: progress, remaining: remaining, ratio: pct(progress, g.target) };
+  }
+  const totalSaved = () => sum(SAVING_CATS, c => goalView(c.id).balance);
+
+  function firstDataMonth() {
+    let first = monthOf(state.createdAt);
+    state.operations.forEach(o => { const m = monthOf(o.date); if (m < first) first = m; });
+    return first;
+  }
+
+  /* =======================================================================
+     ÉTAT D'INTERFACE
+     ======================================================================= */
+  const VIEWS = {
+    dashboard: 'Tableau de bord', operations: 'Opérations', budget: 'Budget',
+    goals: 'Mes objectifs', stats: 'Statistiques', settings: 'Réglages'
+  };
+  const MONTH_VIEWS = ['dashboard', 'budget', 'stats'];
+  const ui = { view: 'dashboard', month: monthOf(todayISO()), budgetTab: 'envelopes', editEnv: false, editingOpId: null };
+  const $ = sel => document.querySelector(sel);
+
+  /* =======================================================================
+     PETITS COMPOSANTS HTML
+     ======================================================================= */
+  function bar(ratio, cls, label) {
+    const w = Math.max(0, Math.min(1, ratio)) * 100;
+    return '<div class="progress ' + (cls || '') + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' +
+      Math.round(Math.min(ratio, 9.99) * 100) + '"' + (label ? ' aria-label="' + esc(label) + '"' : '') + '><span style="width:' + w.toFixed(1) + '%"></span></div>';
+  }
+  function envState(spent, budget) {
+    if (spent > budget) return 'over';
+    if (budget > 0 && spent >= budget * 0.9) return 'warn';
+    return '';
+  }
+  function emptyBlock(text, withAdd) {
+    return '<div class="empty"><p>' + esc(text) + '</p>' +
+      (withAdd ? '<button type="button" class="btn btn-primary" data-action="add-op">Ajouter une opération</button>' : '') + '</div>';
+  }
+  function opRow(op, withDelete) {
+    const c = catOf(op.type, op.category);
+    const sign = op.type === 'expense' ? '−' : op.type === 'income' ? '+' : '→ ';
+    const cls = op.type === 'expense' ? '' : op.type === 'income' ? 'pos' : 'sav';
+    const title = op.description || c.label;
+    const typeLbl = op.type === 'expense' ? 'Dépense' : op.type === 'income' ? 'Revenu' : 'Épargne';
+    return '<li class="op-row">' +
+      '<button type="button" class="op-main" data-action="edit-op" data-id="' + esc(op.id) + '" aria-label="Modifier : ' + esc(title) + ', ' + esc(fmt(op.amount)) + ', ' + esc(labelDate(op.date)) + '">' +
+        '<span class="cat-icon ' + (op.type === 'saving' ? 'sav' : op.type === 'income' ? 'inc' : '') + '" aria-hidden="true">' + c.icon + '</span>' +
+        '<span class="grow"><span class="ellipsis" style="display:block;font-weight:600">' + esc(title) + '</span>' +
+        '<span class="ellipsis tiny muted" style="display:block">' + esc(typeLbl) + ' · ' + esc(c.label) + (withDelete ? '' : ' · ' + esc(labelDate(op.date))) + '</span></span>' +
+        '<span class="op-amount num ' + cls + '">' + sign + esc(fmt(op.amount)) + '</span>' +
+      '</button>' +
+      (withDelete ? '<button type="button" class="op-del" data-action="delete-op" data-id="' + esc(op.id) + '" aria-label="Supprimer : ' + esc(title) + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>' : '') +
+      '</li>';
+  }
+  const sortOps = ops => ops.slice().sort((a, b) => (b.date.localeCompare(a.date)) || ((b.createdAt || 0) - (a.createdAt || 0)));
+
+  /* =======================================================================
+     VUE : TABLEAU DE BORD
+     ======================================================================= */
+  function renderDashboard() {
+    const key = ui.month;
+    const ms = monthStats(key);
+    const eb = expenseBudget();
+    const available = availableOf(ms);
+    const remaining = eb - ms.expenses;
+    const rate = eb > 0 ? ms.expenses / eb : null;
+    const overs = EXPENSE_CATS.filter(c => (ms.byCat[c.id] || 0) > (state.budgets[c.id] || 0));
+    const toTransfer = Math.max(0, plannedSavings() - ms.savings);
+    const car = goalView('car'), safety = goalView('safety');
+
+    let h = '<div class="grid grid-dash">';
+    // Carte principale
+    h += '<section class="card hero span-2" aria-label="Solde disponible">' +
+      '<p class="label">Disponible sur le compte · ' + esc(labelMonth(key)) + '</p>' +
+      '<p class="amount num ' + (available < 0 ? 'neg-hero' : '') + '" id="kpi-available">' + esc(fmt(available)) + '</p>' +
+      '<p class="sub">Salaire + revenus supplémentaires − dépenses − virements vers l\'épargne</p>' +
+      '<div class="hero-row">' +
+        '<div><span>Salaire</span><strong class="num">' + esc(fmt(state.salary)) + '</strong></div>' +
+        '<div><span>Revenus supp.</span><strong class="num">+' + esc(fmt(ms.income)) + '</strong></div>' +
+        '<div><span>Épargné ce mois</span><strong class="num" id="kpi-saved-month">' + esc(fmt(ms.savings)) + '</strong></div>' +
+      '</div></section>';
+
+    // Alerte de dépassement
+    if (overs.length) {
+      h += '<section class="card alert-card span-2" role="alert"><h2>⚠️ Enveloppe' + (overs.length > 1 ? 's dépassées' : ' dépassée') + '</h2><ul>' +
+        overs.map(c => '<li><strong>' + esc(c.label) + '</strong> : ' + esc(fmt(ms.byCat[c.id])) + ' dépensés pour ' + esc(fmt(state.budgets[c.id])) +
+          ' prévus (<span class="num">+' + esc(fmt(ms.byCat[c.id] - state.budgets[c.id])) + '</span>)</li>').join('') +
+        '</ul></section>';
+    }
+
+    // Budget du mois
+    const rateCls = rate === null ? '' : rate > 1 ? 'over' : rate >= 0.9 ? 'warn' : '';
+    h += '<section class="card span-2" aria-labelledby="h-month"><div class="card-head"><h2 id="h-month">Budget du mois</h2>' +
+      '<span class="badge ' + rateCls + '">' + (rate === null ? '—' : fmtPct(rate) + ' consommé') + '</span></div>' +
+      '<div class="grid grid-2">' +
+        '<div class="stat"><p class="label">Salaire mensuel</p><p class="value num">' + esc(fmt(state.salary)) + '</p></div>' +
+        '<div class="stat"><p class="label">Dépenses du mois</p><p class="value num" id="kpi-expenses">' + esc(fmt(ms.expenses)) + '</p></div>' +
+        '<div class="stat"><p class="label">Reste sur le budget</p><p class="value num ' + (remaining < 0 ? 'neg' : '') + '" id="kpi-remaining">' + esc(fmt(remaining)) + '</p></div>' +
+        '<div class="stat"><p class="label">Taux de consommation</p><p class="value num" id="kpi-rate">' + (rate === null ? '—' : esc(fmtPct(rate))) + '</p></div>' +
+      '</div><div style="margin-top:14px">' + bar(rate || 0, rateCls, 'Consommation du budget') + '</div>' +
+      '<p class="tiny muted" style="margin-top:8px">Budget de consommation (enveloppes de dépenses) : <span class="num">' + esc(fmt(eb)) + '</span>. ' +
+      'Les virements vers l\'épargne ne sont pas des dépenses. Épargne prévue restant à virer ce mois : <span class="num">' + esc(fmt(toTransfer)) + '</span>.</p></section>';
+
+    // Épargne
+    h += '<section class="card" aria-labelledby="h-sav"><div class="card-head"><h2 id="h-sav">Mon épargne</h2>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-action="nav" data-view="goals">Objectifs ›</button></div>' +
+      '<p class="muted small">Montant total épargné</p><p class="big num" id="kpi-total-saved">' + esc(fmt(totalSaved())) + '</p>' +
+      [['car', car, '🚙'], ['safety', safety, '🛡️']].map(([id, v, ic]) =>
+        '<div style="margin-top:14px"><div class="row" style="margin-bottom:6px"><span aria-hidden="true">' + ic + '</span>' +
+        '<span class="grow small ellipsis"><strong>' + esc(v.g.name) + '</strong></span>' +
+        '<span class="small num" id="kpi-goal-' + id + '">' + esc(fmt(v.progress)) + ' / ' + esc(fmt(v.g.target)) + '</span></div>' +
+        bar(v.ratio, 'sav', 'Progression ' + v.g.name) + '</div>').join('') +
+      '</section>';
+
+    // Dépenses par catégorie
+    const lines = EXPENSE_CATS.filter(c => (state.budgets[c.id] || 0) > 0 || (ms.byCat[c.id] || 0) > 0);
+    h += '<section class="card" aria-labelledby="h-cat"><div class="card-head"><h2 id="h-cat">Dépenses par catégorie</h2>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-action="nav" data-view="budget">Enveloppes ›</button></div><ul class="list">' +
+      lines.map(c => {
+        const sp = ms.byCat[c.id] || 0, bd = state.budgets[c.id] || 0, st = envState(sp, bd);
+        return '<li class="cat-line"><div class="top"><span class="ellipsis">' + c.icon + ' ' + esc(c.label) + (st === 'over' ? ' <span class="badge over">Dépassé</span>' : '') + '</span>' +
+          '<span class="num ' + (st === 'over' ? 'neg' : 'muted') + '">' + esc(fmt(sp)) + ' / ' + esc(fmt(bd)) + '</span></div>' + bar(pct(sp, bd) || (sp > 0 ? 1 : 0), st, c.label) + '</li>';
+      }).join('') + '</ul></section>';
+
+    // Dernières opérations du mois
+    const recent = sortOps(state.operations.filter(o => monthOf(o.date) === key)).slice(0, 5);
+    h += '<section class="card span-2" aria-labelledby="h-recent"><div class="card-head"><h2 id="h-recent">Dernières opérations</h2>' +
+      (recent.length ? '<button type="button" class="btn btn-ghost btn-sm" data-action="nav" data-view="operations">Tout voir ›</button>' : '') + '</div>' +
+      (recent.length ? '<ul class="list">' + recent.map(o => opRow(o, false)).join('') + '</ul>' : emptyBlock('Aucune opération en ' + labelMonth(key).toLowerCase() + '.', true)) +
+      '</section>';
+    h += '</div>';
+    $('#view-dashboard').innerHTML = h;
+  }
+
+  /* =======================================================================
+     VUE : OPÉRATIONS (liste, filtres, recherche, totaux par catégorie)
+     ======================================================================= */
+  function initOpFilters() {
+    let o = '<option value="all">Toutes catégories</option>';
+    [['expense', 'Dépenses'], ['saving', 'Épargne'], ['income', 'Revenus']].forEach(([t, l]) => {
+      o += '<optgroup label="' + l + '">' + TYPES[t].cats.map(c => '<option value="' + t + ':' + c.id + '">' + esc(c.label) + '</option>').join('') + '</optgroup>';
+    });
+    $('#f-cat').innerHTML = o;
+    ['#f-search', '#f-month', '#f-cat', '#f-type'].forEach(s => $(s).addEventListener('input', renderOpResults));
+    $('#f-month').addEventListener('change', renderOpResults);
+  }
+  function refreshMonthFilter() {
+    const sel = $('#f-month');
+    const prev = sel.value || monthOf(todayISO());
+    const months = new Set(state.operations.map(o => monthOf(o.date)));
+    months.add(monthOf(todayISO()));
+    if (prev !== 'all') months.add(prev);
+    const list = Array.from(months).sort().reverse();
+    sel.innerHTML = '<option value="all">Tous les mois</option>' + list.map(m => '<option value="' + m + '">' + esc(labelMonth(m)) + '</option>').join('');
+    sel.value = prev;
+  }
+  function normalize(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+
+  function filteredOps() {
+    const q = normalize($('#f-search').value.trim());
+    const m = $('#f-month').value, c = $('#f-cat').value, t = $('#f-type').value;
+    return sortOps(state.operations.filter(o => {
+      if (m !== 'all' && monthOf(o.date) !== m) return false;
+      if (c !== 'all' && (o.type + ':' + o.category) !== c) return false;
+      if (t !== 'all' && o.type !== t) return false;
+      if (q) {
+        const hay = normalize([o.description, catOf(o.type, o.category).label, TYPES[o.type].label, fmt(o.amount), toInput(o.amount), labelDay(o.date)].join(' '));
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    }));
+  }
+
+  function renderOpResults() {
+    const ops = filteredOps();
+    const exp = sum(ops.filter(o => o.type === 'expense'), o => o.amount);
+    const sav = sum(ops.filter(o => o.type === 'saving'), o => o.amount);
+    const inc = sum(ops.filter(o => o.type === 'income'), o => o.amount);
+    let h = '<div class="card" style="margin-bottom:12px"><p class="small muted" style="margin-bottom:10px" id="ops-count">' + ops.length + ' opération' + (ops.length > 1 ? 's' : '') + '</p>' +
+      '<div class="totals">' +
+      '<div class="stat"><p class="label">Dépenses</p><p class="value num" id="ops-total-exp">' + esc(fmt(exp)) + '</p></div>' +
+      '<div class="stat"><p class="label">Épargne</p><p class="value num sav">' + esc(fmt(sav)) + '</p></div>' +
+      '<div class="stat"><p class="label">Revenus</p><p class="value num pos">' + esc(fmt(inc)) + '</p></div></div>';
+    // Totaux des dépenses par catégorie (sur la sélection)
+    const byCat = {};
+    ops.filter(o => o.type === 'expense').forEach(o => { byCat[o.category] = (byCat[o.category] || 0) + o.amount; });
+    const cats = EXPENSE_CATS.filter(c => byCat[c.id]).sort((a, b) => byCat[b.id] - byCat[a.id]);
+    if (cats.length) {
+      h += '<details class="help" style="margin-top:6px"><summary>Total des dépenses par catégorie</summary><div class="content"><ul class="list">' +
+        cats.map(c => '<li class="kv"><span>' + c.icon + ' ' + esc(c.label) + '</span><span class="num">' + esc(fmt(byCat[c.id])) + ' · ' + fmtPct(pct(byCat[c.id], exp)) + '</span></li>').join('') +
+        '</ul></div></details>';
+    }
+    h += '</div>';
+    if (!ops.length) {
+      h += '<div class="card">' + emptyBlock(state.operations.length ? 'Aucune opération ne correspond à ces filtres.' : 'Aucune opération enregistrée pour le moment.', !state.operations.length) +
+        (state.operations.length ? '<div style="text-align:center"><button type="button" class="btn btn-sm" data-action="reset-filters">Réinitialiser les filtres</button></div>' : '') + '</div>';
+    } else {
+      h += '<div class="card" style="padding:8px 12px">';
+      let day = '';
+      ops.forEach((o, i) => {
+        if (o.date !== day) {
+          if (day) h += '</ul>';
+          day = o.date;
+          h += '<h3 class="day-head">' + esc(labelDay(o.date)) + '</h3><ul class="list" id="ops-list-' + i + '">';
+        }
+        h += opRow(o, true);
+      });
+      h += '</ul></div>';
+    }
+    $('#ops-results').innerHTML = h;
+  }
+  function renderOperations() { refreshMonthFilter(); renderOpResults(); }
+
+  /* =======================================================================
+     VUE : BUDGET (enveloppes + budget hebdomadaire)
+     ======================================================================= */
+  function renderBudget() {
+    let h = '<div class="seg" role="tablist" aria-label="Sections du budget" style="margin-bottom:14px">' +
+      '<button type="button" role="tab" data-action="budget-tab" data-tab="envelopes" aria-selected="' + (ui.budgetTab === 'envelopes') + '">Enveloppes</button>' +
+      '<button type="button" role="tab" data-action="budget-tab" data-tab="week" aria-selected="' + (ui.budgetTab === 'week') + '">Semaine</button></div>';
+    h += ui.budgetTab === 'week' ? weekHTML() : envelopesHTML();
+    $('#view-budget').innerHTML = h;
+    if (ui.budgetTab === 'envelopes' && ui.editEnv) updateEnvSummary();
+  }
+
+  function envSummaryHTML(salary, total) {
+    const diff = salary - total;
+    return '<div class="card-head" style="margin-bottom:8px"><h2>Total des enveloppes</h2>' +
+      '<span class="badge ' + (diff < 0 ? 'over' : diff > 0 ? 'warn' : '') + '" id="env-badge">' + (diff < 0 ? 'Dépassement' : diff > 0 ? 'Non affecté' : 'Équilibré') + '</span></div>' +
+      '<div class="grid grid-2">' +
+      '<div class="stat"><p class="label">Total affecté</p><p class="value num" id="env-total">' + esc(fmt(total)) + '</p></div>' +
+      '<div class="stat"><p class="label">' + (diff < 0 ? 'Dépassement du salaire' : 'Montant non affecté') + '</p><p class="value num ' + (diff < 0 ? 'neg' : '') + '" id="env-diff">' + esc(fmt(Math.abs(diff))) + '</p></div></div>' +
+      '<p class="tiny muted" style="margin-top:8px">Comparé au salaire de <span class="num" id="env-salary">' + esc(fmt(salary)) + '</span>.</p>';
+  }
+
+  function envelopesHTML() {
+    const ms = monthStats(ui.month);
+    const edit = ui.editEnv;
+    let h = '<section class="card env-summary' + (envelopesTotal() > state.salary ? ' is-over' : '') + '" id="env-summary" aria-live="polite">' + envSummaryHTML(state.salary, envelopesTotal()) + '</section>';
+    h += '<div class="btn-row" style="margin:12px 0">' + (edit
+      ? '<button type="button" class="btn btn-primary" data-action="env-save">Enregistrer les budgets</button><button type="button" class="btn" data-action="env-cancel">Annuler</button>'
+      : '<button type="button" class="btn" data-action="env-edit">✏️ Modifier les budgets prévus</button>') + '</div>';
+    if (edit) {
+      h += '<div class="card" style="margin-bottom:12px"><label class="field"><span>Salaire net mensuel (€)</span>' +
+        '<input class="input num env-input" data-kind="salary" inputmode="decimal" value="' + esc(toInput(state.salary)) + '"></label>' +
+        '<p class="form-error" id="env-error" role="alert"></p></div>';
+    }
+    h += '<h2 style="margin:6px 0 10px">Dépenses · ' + esc(labelMonth(ui.month)) + '</h2><div class="env-grid">';
+    EXPENSE_CATS.forEach(c => {
+      const bd = state.budgets[c.id] || 0, sp = ms.byCat[c.id] || 0, rest = bd - sp, st = envState(sp, bd);
+      h += '<article class="card env-card" aria-label="Enveloppe ' + esc(c.label) + '"><div class="row"><span class="cat-icon" aria-hidden="true">' + c.icon + '</span>' +
+        '<h3 class="grow">' + esc(c.label) + (c.fixed ? ' <span class="tiny muted">(fixe)</span>' : '') + '</h3>' +
+        (st === 'over' ? '<span class="badge over">⚠ Dépassé</span>' : st === 'warn' ? '<span class="badge warn">Bientôt épuisé</span>' : '') + '</div>' +
+        '<div class="env-figs"><div><span>Prévu</span><strong class="num">' + esc(fmt(bd)) + '</strong></div>' +
+        '<div><span>Dépensé</span><strong class="num">' + esc(fmt(sp)) + '</strong></div>' +
+        '<div><span>' + (rest < 0 ? 'Dépassement' : 'Restant') + '</span><strong class="num ' + (rest < 0 ? 'neg' : '') + '">' + esc(fmt(Math.abs(rest))) + '</strong></div></div>' +
+        bar(bd > 0 ? sp / bd : (sp > 0 ? 1 : 0), st, 'Consommation ' + c.label) +
+        (edit ? '<label class="field env-edit"><span>Budget prévu (€)</span><input class="input num env-input" data-kind="expense" data-id="' + c.id + '" inputmode="decimal" value="' + esc(toInput(bd)) + '"></label>' : '') +
+        '</article>';
+    });
+    h += '</div><h2 style="margin:22px 0 10px">Épargne programmée</h2><p class="small muted" style="margin:-4px 0 10px">Virements prévus chaque mois. Ils réduisent le disponible du compte mais ne sont pas des dépenses.</p><div class="env-grid">';
+    SAVING_CATS.forEach(c => {
+      const g = state.goals[c.id], done = ms.savByCat[c.id] || 0, rest = g.monthly - done;
+      h += '<article class="card env-card" aria-label="Épargne ' + esc(c.label) + '"><div class="row"><span class="cat-icon sav" aria-hidden="true">' + c.icon + '</span>' +
+        '<h3 class="grow">' + esc(c.label) + '</h3>' + (g.monthly > 0 && done >= g.monthly ? '<span class="badge sav">✓ Fait</span>' : '') + '</div>' +
+        '<div class="env-figs"><div><span>Prévu</span><strong class="num">' + esc(fmt(g.monthly)) + '</strong></div>' +
+        '<div><span>Versé</span><strong class="num sav">' + esc(fmt(done)) + '</strong></div>' +
+        '<div><span>' + (rest < 0 ? 'En plus' : 'Reste à verser') + '</span><strong class="num">' + esc(fmt(Math.abs(rest))) + '</strong></div></div>' +
+        bar(g.monthly > 0 ? done / g.monthly : (done > 0 ? 1 : 0), 'sav', 'Versements ' + c.label) +
+        (edit ? '<label class="field env-edit"><span>Versement mensuel prévu (€)</span><input class="input num env-input" data-kind="saving" data-id="' + c.id + '" inputmode="decimal" value="' + esc(toInput(g.monthly)) + '"></label>' : '') +
+        '</article>';
+    });
+    h += '</div><p class="tiny muted" style="margin-top:14px">Les enveloppes sont identiques chaque mois. Un dépassement est signalé mais n\'empêche jamais l\'enregistrement d\'une dépense.</p>';
+    return h;
+  }
+
+  // Lecture des champs d'édition des enveloppes (mise à jour instantanée du total)
+  function readEnvInputs() {
+    let salary = state.salary, total = 0, valid = true;
+    document.querySelectorAll('.env-input').forEach(inp => {
+      const v = parseAmount(inp.value, true);
+      inp.setAttribute('aria-invalid', v === null ? 'true' : 'false');
+      if (v === null) { valid = false; return; }
+      if (inp.dataset.kind === 'salary') salary = v; else total += v;
+    });
+    return { salary: salary, total: total, valid: valid };
+  }
+  function updateEnvSummary() {
+    const r = readEnvInputs();
+    const box = $('#env-summary');
+    box.innerHTML = envSummaryHTML(r.salary, r.total);
+    box.classList.toggle('is-over', r.total > r.salary);
+    const err = $('#env-error');
+    if (err) err.textContent = r.valid ? '' : 'Certains montants sont invalides (nombre positif attendu, ex. 120,50).';
+  }
+
+  /* ---------- Budget hebdomadaire ---------- */
+  function weekInfo() {
+    const t = todayISO(), key = monthOf(t), dim = daysInMonth(key);
+    const monthStart = key + '-01', monthEnd = key + '-' + pad2(dim);
+    const [ws, we] = weekRange(t);
+    const start = ws < monthStart ? monthStart : ws;  // partie de la semaine dans le mois en cours
+    const end = we > monthEnd ? monthEnd : we;
+    const varCats = EXPENSE_CATS.filter(c => !c.fixed), fixCats = EXPENSE_CATS.filter(c => c.fixed);
+    const isVar = id => varCats.some(c => c.id === id);
+    const V = sum(varCats, c => state.budgets[c.id] || 0);
+    const F = sum(fixCats, c => state.budgets[c.id] || 0);
+    const monthExp = state.operations.filter(o => o.type === 'expense' && monthOf(o.date) === key);
+    const varOps = monthExp.filter(o => isVar(o.category));
+    const spentBefore = sum(varOps.filter(o => o.date < start), o => o.amount);
+    const spentWeek = sum(varOps.filter(o => o.date >= start && o.date <= end), o => o.amount);
+    const spentToDate = sum(varOps.filter(o => o.date <= t), o => o.amount);
+    const spentMonthVar = sum(varOps, o => o.amount);
+    const fixedSpent = sum(monthExp.filter(o => !isVar(o.category)), o => o.amount);
+    const daysToMonthEnd = dayDiff(start, monthEnd) + 1;
+    const weekDays = dayDiff(start, end) + 1;
+    const leftAtWeekStart = V - spentBefore;
+    // Budget de la semaine = reste des enveloppes variables au début de la semaine, réparti au prorata des jours réels
+    const weekBudget = Math.max(0, Math.round(leftAtWeekStart * weekDays / daysToMonthEnd));
+    const weekLeft = weekBudget - spentWeek;
+    const daysLeftWeek = dayDiff(t, end) + 1;
+    const daysLeftMonth = dayDiff(t, monthEnd) + 1;
+    const dailyWeek = weekLeft > 0 ? Math.floor(weekLeft / daysLeftWeek) : 0;
+    const dailyMonth = Math.max(0, Math.floor((V - spentMonthVar) / daysLeftMonth));
+    const dayOfMonth = Number(t.slice(8));
+    // Estimation des dépenses à venir : fixes non encore payées + dépenses courantes au rythme observé
+    const fixedLeft = Math.max(0, F - fixedSpent);
+    const futureDays = dim - dayOfMonth;
+    let varUpcoming, method;
+    if (spentToDate > 0) { varUpcoming = Math.round(spentToDate / dayOfMonth * futureDays); method = 'rythme'; }
+    else { varUpcoming = Math.max(0, V - spentMonthVar); method = 'enveloppes'; }
+    return {
+      t, key, dim, ws, we, start, end, V, F, weekBudget, spentWeek, weekLeft, daysLeftWeek, dailyWeek, dailyMonth,
+      leftAtWeekStart, fixedLeft, varUpcoming, method, spentMonthVar,
+      simpleWeek: Math.round(V / 4.33), simpleDay: Math.round(V / dim), clipped: start !== ws || end !== we
+    };
+  }
+  function weekHTML() {
+    const w = weekInfo();
+    let h = '<section class="card hero" aria-label="Budget de la semaine"><p class="label">Semaine du ' + esc(labelDate(w.ws)) + ' au ' + esc(labelDate(w.we)) + '</p>' +
+      '<p class="amount num" id="week-left">' + esc(fmt(w.weekLeft)) + '</p><p class="sub">Reste à dépenser jusqu\'à dimanche</p>' +
+      '<div class="hero-row"><div><span>Budget semaine</span><strong class="num" id="week-budget">' + esc(fmt(w.weekBudget)) + '</strong></div>' +
+      '<div><span>Déjà dépensé</span><strong class="num" id="week-spent">' + esc(fmt(w.spentWeek)) + '</strong></div>' +
+      '<div><span>Par jour</span><strong class="num">' + esc(fmt(w.dailyWeek)) + '</strong></div></div></section>';
+    if (w.weekLeft < 0) h += '<section class="card alert-card" role="alert" style="margin-top:12px"><h2>Budget de la semaine dépassé</h2><p class="small">Vous avez dépensé <span class="num">' + esc(fmt(-w.weekLeft)) + '</span> de plus que prévu cette semaine.</p></section>';
+    if (w.leftAtWeekStart < 0) h += '<section class="card warn-card" style="margin-top:12px"><p class="small"><strong>Enveloppes variables déjà épuisées</strong> avant cette semaine : le budget hebdomadaire est de 0 €.</p></section>';
+    h += '<div class="grid grid-2" style="margin-top:12px">' +
+      '<div class="stat"><p class="label">Budget quotidien indicatif (semaine)</p><p class="value num">' + esc(fmt(w.dailyWeek)) + '</p><p class="tiny muted">sur ' + w.daysLeftWeek + ' jour' + (w.daysLeftWeek > 1 ? 's' : '') + ' restant' + (w.daysLeftWeek > 1 ? 's' : '') + '</p></div>' +
+      '<div class="stat"><p class="label">Budget quotidien (fin du mois)</p><p class="value num">' + esc(fmt(w.dailyMonth)) + '</p><p class="tiny muted">jusqu\'au ' + esc(labelDate(w.key + '-' + pad2(w.dim))) + '</p></div></div>';
+    h += '<section class="card" style="margin-top:12px" aria-labelledby="h-upcoming"><h2 id="h-upcoming" style="margin-bottom:6px">Estimation des dépenses à venir (' + esc(labelMonth(w.key).toLowerCase()) + ')</h2>' +
+      '<div class="kv"><span>Dépenses fixes encore attendues (logement, crédit)</span><span class="num">' + esc(fmt(w.fixedLeft)) + '</span></div>' +
+      '<div class="kv"><span>Dépenses courantes estimées ' + (w.method === 'rythme' ? '(au rythme actuel)' : '(selon vos enveloppes, aucune dépense encore)') + '</span><span class="num">' + esc(fmt(w.varUpcoming)) + '</span></div>' +
+      '<div class="kv"><strong>Total estimé à venir</strong><strong class="num">' + esc(fmt(w.fixedLeft + w.varUpcoming)) + '</strong></div>' +
+      '<div class="kv"><span>Projection des dépenses courantes sur le mois</span><span class="num ' + (w.spentMonthVar + (w.method === 'rythme' ? w.varUpcoming : 0) > w.V ? 'neg' : '') + '">' +
+        esc(fmt(w.spentMonthVar + (w.method === 'rythme' ? w.varUpcoming : 0))) + ' / ' + esc(fmt(w.V)) + '</span></div></section>';
+    h += '<section class="card" style="margin-top:12px" aria-labelledby="h-simple"><h2 id="h-simple" style="margin-bottom:6px">Repère simple (4,33 semaines par mois)</h2>' +
+      '<div class="kv"><span>Enveloppes courantes mensuelles</span><span class="num">' + esc(fmt(w.V)) + '</span></div>' +
+      '<div class="kv"><span>÷ 4,33 = budget hebdomadaire moyen</span><span class="num">' + esc(fmt(w.simpleWeek)) + '</span></div>' +
+      '<div class="kv"><span>÷ ' + w.dim + ' jours = budget quotidien moyen</span><span class="num">' + esc(fmt(w.simpleDay)) + '</span></div></section>';
+    h += '<details class="help card" style="margin-top:12px;padding:0 18px"><summary>Comment ce budget est-il calculé ?</summary><div class="content">' +
+      '<p>Seules les enveloppes <strong>courantes</strong> sont réparties à la semaine (courses, transport, loisirs, vêtements, voyages, imprévus, argent libre, autres). Le logement et le crédit, payés une fois par mois, sont comptés à part dans « dépenses fixes attendues » : aucun montant n\'est compté deux fois.</p>' +
+      '<p style="margin-top:8px">Budget de la semaine = (enveloppes courantes − dépenses courantes déjà faites avant lundi) × jours de la semaine dans le mois ÷ jours restants du mois (' + w.dim + ' jours ce mois-ci). Les virements d\'épargne n\'entrent pas dans ce calcul.</p>' +
+      (w.clipped ? '<p style="margin-top:8px">Cette semaine est à cheval sur deux mois : seuls les jours du mois en cours (' + esc(labelDate(w.start)) + ' → ' + esc(labelDate(w.end)) + ') sont pris en compte.</p>' : '') +
+      '</div></details>';
+    return h;
+  }
+
+  /* =======================================================================
+     VUE : OBJECTIFS D'ÉPARGNE
+     ======================================================================= */
+  function goalEstimate(id) {
+    const v = goalView(id), g = v.g;
+    const cur = monthOf(todayISO());
+    const res = { real: '', planned: '', needed: '', deadlineInfo: '' };
+    if (g.target <= 0) return res;
+    if (v.remaining === 0) { res.real = 'Objectif atteint 🎉'; return res; }
+    const elapsed = Math.max(1, monthDiff(monthOf(state.createdAt), cur) + 1);
+    if (v.contrib > 0) {
+      const rate = v.contrib / elapsed;
+      const months = Math.ceil(v.remaining / rate);
+      const target = shiftMonth(cur, months);
+      res.real = 'Au rythme réel (' + fmt(Math.round(rate)) + ' / mois en moyenne) : objectif atteint vers ' + labelMonth(target).toLowerCase() + '.';
+      if (g.deadline) res.real += monthOf(g.deadline) >= target ? ' ✓ Dans les temps.' : ' ⚠ Après l\'échéance.';
+    } else {
+      res.real = 'Aucun versement enregistré : ajoutez un versement pour obtenir une estimation basée sur vos versements réels.';
+    }
+    if (g.monthly > 0) {
+      const thisMonth = sum(contributions(id).filter(o => monthOf(o.date) === cur), o => o.amount);
+      const leftThisMonth = Math.max(0, g.monthly - thisMonth);
+      const months = v.remaining <= leftThisMonth ? 0 : Math.ceil((v.remaining - leftThisMonth) / g.monthly);
+      res.planned = 'Avec le versement prévu de ' + fmt(g.monthly) + ' / mois : vers ' + labelMonth(shiftMonth(cur, months)).toLowerCase() + '.';
+    }
+    if (g.deadline) {
+      const monthsLeft = monthDiff(cur, monthOf(g.deadline)) + 1;
+      if (monthsLeft >= 1) res.needed = 'Pour tenir l\'échéance du ' + labelDate(g.deadline) + ' : ' + fmt(Math.ceil(v.remaining / monthsLeft)) + ' / mois sur ' + monthsLeft + ' mois.';
+      else res.needed = 'L\'échéance du ' + labelDate(g.deadline) + ' est dépassée.';
+    }
+    return res;
+  }
+
+  function renderGoals() {
+    let h = '<div class="grid grid-dash">';
+    SAVING_CATS.forEach(c => {
+      const v = goalView(c.id), g = v.g, est = goalEstimate(c.id);
+      const hist = sortOps(contributions(c.id));
+      h += '<section class="card" aria-labelledby="goal-h-' + c.id + '" id="goal-card-' + c.id + '">' +
+        '<div class="row" style="margin-bottom:14px"><span class="cat-icon sav" aria-hidden="true">' + c.icon + '</span>' +
+        '<div class="grow"><h2 id="goal-h-' + c.id + '" class="ellipsis">' + esc(g.name) + '</h2><p class="tiny muted">' + esc(c.label) + (g.includeStart ? '' : ' · objectif de montant supplémentaire') + '</p></div></div>';
+      if (g.target > 0) {
+        h += '<p class="big num" id="goal-progress-' + c.id + '">' + esc(fmt(v.progress)) + '</p><p class="small muted">sur ' + esc(fmt(g.target)) + ' · ' + fmtPct(Math.min(v.ratio, 9.99)) + '</p>' +
+          '<div style="margin:12px 0">' + bar(v.ratio, 'sav lg', 'Progression ' + g.name) + '</div>' +
+          '<div class="kv"><span>Reste à économiser</span><strong class="num" id="goal-remaining-' + c.id + '">' + esc(fmt(v.remaining)) + '</strong></div>';
+      } else {
+        h += '<p class="big num">' + esc(fmt(v.balance)) + '</p><p class="small muted">Aucun montant cible défini.</p>';
+      }
+      h += '<div class="kv"><span>Solde actuel de cette épargne</span><span class="num">' + esc(fmt(v.balance)) + '</span></div>' +
+        '<div class="kv"><span>dont solde de départ</span><span class="num">' + esc(fmt(g.start)) + '</span></div>' +
+        '<div class="kv"><span>Versement mensuel prévu</span><span class="num">' + esc(fmt(g.monthly)) + '</span></div>' +
+        (g.deadline ? '<div class="kv"><span>Échéance</span><span>' + esc(labelDate(g.deadline)) + '</span></div>' : '');
+      const notes = [est.real, est.planned, est.needed].filter(Boolean);
+      if (notes.length) h += '<div class="card info-card" style="margin-top:12px;padding:12px 14px"><ul class="small" style="margin:0;padding-left:18px">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul></div>';
+      h += '<div class="btn-row" style="margin-top:14px"><button type="button" class="btn btn-primary btn-sm" data-action="goal-add" data-goal="' + c.id + '">+ Versement</button>' +
+        '<button type="button" class="btn btn-sm" data-action="goal-edit" data-goal="' + c.id + '">Modifier l\'objectif</button></div>' +
+        '<details class="help" style="margin-top:8px"><summary>Historique des versements (' + hist.length + ')</summary><div class="content">' +
+        (hist.length ? '<ul class="list">' + hist.map(o => opRow(o, true)).join('') + '</ul>' : '<p class="muted small">Aucun versement pour le moment.</p>') +
+        (g.start > 0 ? '<p class="tiny muted" style="margin-top:8px">Solde de départ : ' + esc(fmt(g.start)) + ' (modifiable via « Modifier l\'objectif »).</p>' : '') +
+        '</div></details></section>';
+    });
+    h += '</div>';
+    $('#view-goals').innerHTML = h;
+  }
+
+  /* =======================================================================
+     VUE : STATISTIQUES (graphiques SVG natifs)
+     ======================================================================= */
+  function svgBars(items, budget) {
+    const W = 340, H = 200, pl = 6, pr = 6, pt = 20, pb = 24, n = items.length;
+    const max = Math.max(budget || 0, ...items.map(i => i.value), 1);
+    const ih = H - pt - pb, slot = (W - pl - pr) / n, bw = Math.min(38, slot * 0.6);
+    let s = '<line class="axis" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + (H - pb) + '" y2="' + (H - pb) + '"/>';
+    items.forEach((it, i) => {
+      const x = pl + slot * i + slot / 2, bh = it.value / max * ih, y = H - pb - bh;
+      s += '<rect class="bar' + (budget && it.value > budget ? ' over' : '') + '" x="' + (x - bw / 2).toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(bh, 0).toFixed(1) + '" rx="5"/>';
+      s += '<text class="val" x="' + x.toFixed(1) + '" y="' + (y - 5).toFixed(1) + '" text-anchor="middle">' + esc(compact(it.value)) + '</text>';
+      s += '<text x="' + x.toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + esc(it.label) + '</text>';
+    });
+    if (budget) {
+      const y = H - pb - budget / max * ih;
+      s += '<line class="budget-line" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '"/>';
+    }
+    const desc = items.map(i => i.full + ' : ' + fmt(i.value)).join(' ; ');
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(desc) + '">' + s + '</svg>';
+  }
+  function svgLine(items) {
+    const W = 340, H = 200, pl = 22, pr = 22, pt = 24, pb = 24, n = items.length;
+    const max = Math.max(...items.map(i => i.value), 1);
+    const ih = H - pt - pb, step = (W - pl - pr) / Math.max(1, n - 1);
+    const pts = items.map((it, i) => [pl + step * i, H - pb - it.value / max * ih]);
+    let s = '<line class="axis" x1="0" x2="' + W + '" y1="' + (H - pb) + '" y2="' + (H - pb) + '"/>';
+    s += '<path class="area" d="M' + pts[0][0].toFixed(1) + ' ' + (H - pb) + ' ' + pts.map(p => 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ') + ' L' + pts[n - 1][0].toFixed(1) + ' ' + (H - pb) + 'Z"/>';
+    s += '<polyline class="line" points="' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '"/>';
+    pts.forEach((p, i) => {
+      s += '<circle class="dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4"/>';
+      s += '<text class="val" x="' + p[0].toFixed(1) + '" y="' + (p[1] - 9).toFixed(1) + '" text-anchor="middle">' + esc(compact(items[i].value)) + '</text>';
+      s += '<text x="' + p[0].toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + esc(items[i].label) + '</text>';
+    });
+    const desc = items.map(i => i.full + ' : ' + fmt(i.value)).join(' ; ');
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(desc) + '">' + s + '</svg>';
+  }
+
+  function renderStats() {
+    const key = ui.month, ms = monthStats(key), eb = expenseBudget();
+    const first = firstDataMonth(), cur = monthOf(todayISO());
+    // Fenêtre des 6 derniers mois (jusqu'au mois affiché), sans remonter avant le début des données
+    const months = [];
+    for (let i = 5; i >= 0; i--) { const m = shiftMonth(key, -i); if (m >= first) months.push(m); }
+    let h = '<div class="grid grid-dash">';
+
+    // Indicateurs
+    const completed = [];
+    for (let m = first; m < cur; m = shiftMonth(m, 1)) completed.push(m);
+    const allExp = sum(state.operations.filter(o => o.type === 'expense'), o => o.amount);
+    const contribTotal = sum(state.operations.filter(o => o.type === 'saving'), o => o.amount);
+    let avgTxt;
+    if (completed.length) {
+      const tot = sum(completed, m => monthStats(m).expenses);
+      avgTxt = '<p class="value num" id="stat-avg">' + esc(fmt(Math.round(tot / completed.length))) + '</p><p class="tiny muted">sur ' + completed.length + ' mois complet' + (completed.length > 1 ? 's' : '') + '</p>';
+    } else {
+      avgTxt = '<p class="value num" id="stat-avg">—</p><p class="tiny muted">Pas encore de mois complet. Mois en cours : ' + esc(fmt(monthStats(cur).expenses)) + '</p>';
+    }
+    const allByCat = {};
+    state.operations.filter(o => o.type === 'expense').forEach(o => { allByCat[o.category] = (allByCat[o.category] || 0) + o.amount; });
+    const top = EXPENSE_CATS.filter(c => allByCat[c.id]).sort((a, b) => allByCat[b.id] - allByCat[a.id]).slice(0, 3);
+    h += '<section class="card span-2" aria-labelledby="h-kpi"><h2 id="h-kpi" style="margin-bottom:12px">Vue d\'ensemble</h2><div class="grid grid-2 grid-3">' +
+      '<div class="stat"><p class="label">Moyenne des dépenses mensuelles</p>' + avgTxt + '</div>' +
+      '<div class="stat"><p class="label">Montant total économisé</p><p class="value num sav" id="stat-saved">' + esc(fmt(totalSaved())) + '</p><p class="tiny muted">dont ' + esc(fmt(contribTotal)) + ' de versements enregistrés</p></div>' +
+      '<div class="stat"><p class="label">Total des dépenses enregistrées</p><p class="value num">' + esc(fmt(allExp)) + '</p><p class="tiny muted">depuis ' + esc(labelMonth(first).toLowerCase()) + '</p></div></div>' +
+      '<h3 style="margin:16px 0 6px">Catégories où vous dépensez le plus</h3>' +
+      (top.length ? '<ol class="small" style="margin:0;padding-left:20px">' + top.map(c => '<li>' + c.icon + ' ' + esc(c.label) + ' — <span class="num">' + esc(fmt(allByCat[c.id])) + '</span> (' + fmtPct(pct(allByCat[c.id], allExp)) + ')</li>').join('') + '</ol>'
+        : '<p class="small muted">Aucune dépense enregistrée pour l\'instant.</p>') + '</section>';
+
+    // Dépenses par catégorie (mois affiché)
+    const cats = EXPENSE_CATS.filter(c => ms.byCat[c.id]).sort((a, b) => ms.byCat[b.id] - ms.byCat[a.id]);
+    const maxCat = cats.length ? ms.byCat[cats[0].id] : 1;
+    h += '<section class="card" aria-labelledby="h-bycat"><h2 id="h-bycat" style="margin-bottom:10px">Dépenses par catégorie · ' + esc(labelMonth(key)) + '</h2>' +
+      (cats.length ? '<ul class="list">' + cats.map(c => '<li class="cat-line"><div class="top"><span class="ellipsis">' + c.icon + ' ' + esc(c.label) + '</span><span class="num">' + esc(fmt(ms.byCat[c.id])) + ' · ' + fmtPct(pct(ms.byCat[c.id], ms.expenses)) + '</span></div>' + bar(ms.byCat[c.id] / maxCat, '', c.label) + '</li>').join('') + '</ul>'
+        : '<p class="small muted">Aucune dépense ce mois-ci.</p>') + '</section>';
+
+    // Budget prévu vs réel
+    h += '<section class="card" aria-labelledby="h-cmp"><h2 id="h-cmp" style="margin-bottom:4px">Budget prévu vs réel · ' + esc(labelMonth(key)) + '</h2>' +
+      '<div class="legend" style="margin:0 0 8px"><span><i style="background:var(--muted);opacity:.45"></i>Prévu</span><span><i style="background:var(--accent)"></i>Réel</span><span><i style="background:var(--danger)"></i>Dépassement</span></div><ul class="list">';
+    const cmpRows = EXPENSE_CATS.filter(c => (state.budgets[c.id] || 0) > 0 || ms.byCat[c.id]);
+    const cmpMax = Math.max(1, ...cmpRows.map(c => Math.max(state.budgets[c.id] || 0, ms.byCat[c.id] || 0)));
+    cmpRows.forEach(c => {
+      const bd = state.budgets[c.id] || 0, sp = ms.byCat[c.id] || 0;
+      h += '<li class="cat-line"><div class="top"><span class="ellipsis small">' + esc(c.label) + '</span><span class="num small ' + (sp > bd ? 'neg' : 'muted') + '">' + esc(fmt(sp)) + ' / ' + esc(fmt(bd)) + '</span></div>' +
+        '<div class="cmp-bars">' + bar(bd / cmpMax, 'planned', 'Prévu ' + c.label) + bar(sp / cmpMax, sp > bd ? 'over' : '', 'Réel ' + c.label) + '</div></li>';
+    });
+    h += '<li class="kv"><strong>Total dépenses</strong><strong class="num ' + (ms.expenses > eb ? 'neg' : '') + '">' + esc(fmt(ms.expenses)) + ' / ' + esc(fmt(eb)) + '</strong></li>' +
+      '<li class="kv"><strong>Épargne versée</strong><strong class="num sav">' + esc(fmt(ms.savings)) + ' / ' + esc(fmt(plannedSavings())) + '</strong></li></ul></section>';
+
+    // Évolution des dépenses
+    h += '<section class="card" aria-labelledby="h-evo"><h2 id="h-evo" style="margin-bottom:10px">Évolution des dépenses (6 derniers mois)</h2>';
+    if (months.length >= 2) {
+      h += svgBars(months.map(m => ({ label: labelMonthShort(m), full: labelMonth(m), value: monthStats(m).expenses })), eb) +
+        '<div class="legend"><span><i style="background:var(--accent)"></i>Dépenses</span><span><i style="background:var(--danger)"></i>Au-dessus du budget</span><span>- - - Budget (' + esc(fmt(eb)) + ')</span></div>';
+    } else {
+      h += '<p class="small muted" id="evo-empty">Pas encore assez d\'historique : il faut au moins deux mois de données pour afficher une évolution (début du suivi : ' + esc(labelMonth(first).toLowerCase()) + '). Aucune donnée n\'est inventée.</p>';
+    }
+    h += '</section>';
+
+    // Évolution de l'épargne (solde cumulé en fin de mois)
+    h += '<section class="card" aria-labelledby="h-sevo"><h2 id="h-sevo" style="margin-bottom:10px">Évolution de l\'épargne</h2>';
+    const sm = months.filter(m => m >= monthOf(state.createdAt) || state.operations.some(o => o.type === 'saving' && monthOf(o.date) <= m));
+    if (sm.length >= 2) {
+      const startSum = sum(SAVING_CATS, c => state.goals[c.id].start);
+      const setupM = monthOf(state.createdAt);
+      h += svgLine(sm.map(m => ({
+        label: labelMonthShort(m), full: labelMonth(m),
+        value: (m >= setupM ? startSum : 0) + sum(state.operations.filter(o => o.type === 'saving' && monthOf(o.date) <= m), o => o.amount)
+      }))) + '<p class="tiny muted" style="margin-top:6px">Épargne totale en fin de mois (soldes de départ + versements).</p>';
+    } else {
+      h += '<p class="small muted">Pas encore assez d\'historique : l\'évolution s\'affichera à partir du deuxième mois de suivi. Épargne totale actuelle : <span class="num">' + esc(fmt(totalSaved())) + '</span>.</p>';
+    }
+    h += '</section></div>';
+    $('#view-stats').innerHTML = h;
+  }
+
+  /* =======================================================================
+     VUE : RÉGLAGES, DONNÉES ET AIDE IPHONE
+     ======================================================================= */
+  function renderSettings() {
+    const t = state.prefs.theme;
+    let h = '<div class="grid grid-dash">';
+    h += '<section class="card" aria-labelledby="h-prof"><h2 id="h-prof" style="margin-bottom:12px">Profil financier</h2>' +
+      '<form id="form-profile" class="form-grid" novalidate>' +
+      '<label class="field"><span>Salaire net mensuel (€)</span><input class="input num" id="set-salary" inputmode="decimal" value="' + esc(toInput(state.salary)) + '"></label>' +
+      SAVING_CATS.map(c => '<label class="field"><span>Solde de départ · ' + esc(c.label) + ' (€)</span><input class="input num" id="set-start-' + c.id + '" inputmode="decimal" value="' + esc(toInput(state.goals[c.id].start)) + '"></label>').join('') +
+      '<p class="tiny muted">Le solde de départ correspond à l\'épargne que vous possédiez avant de commencer le suivi (début : ' + esc(labelDate(state.createdAt)) + ').</p>' +
+      '<p class="form-error" id="profile-error" role="alert"></p>' +
+      '<button type="submit" class="btn btn-primary">Enregistrer le profil</button></form></section>';
+
+    h += '<section class="card" aria-labelledby="h-theme"><h2 id="h-theme" style="margin-bottom:12px">Apparence</h2>' +
+      '<div class="seg" role="group" aria-label="Thème">' +
+      [['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']].map(([v, l]) => '<button type="button" data-action="theme" data-theme="' + v + '" aria-pressed="' + (t === v) + '">' + l + '</button>').join('') +
+      '</div><p class="tiny muted" style="margin-top:8px">« Automatique » suit le réglage clair/sombre de votre téléphone.</p></section>';
+
+    const opsN = state.operations.length;
+    h += '<section class="card span-2" aria-labelledby="h-data"><h2 id="h-data" style="margin-bottom:8px">Sauvegarde et données</h2>' +
+      '<div class="kv"><span>Stockage local</span><strong class="' + (storageOK ? 'pos' : 'neg') + '" id="storage-status">' + (storageOK ? 'Actif' : 'Indisponible') + '</strong></div>' +
+      '<div class="kv"><span>Opérations enregistrées</span><span class="num">' + opsN + '</span></div>' +
+      '<div class="kv"><span>Dernière modification</span><span>' + (state.updatedAt ? esc(new Date(state.updatedAt).toLocaleString('fr-FR')) : '—') + '</span></div>' +
+      '<div class="kv"><span>Dernier export JSON</span><span>' + (state.prefs.lastExport ? esc(new Date(state.prefs.lastExport).toLocaleString('fr-FR')) : 'jamais') + '</span></div>' +
+      '<div class="btn-row" style="margin-top:12px">' +
+      '<button type="button" class="btn btn-primary" data-action="export-json">Exporter tout (JSON)</button>' +
+      '<button type="button" class="btn" data-action="export-csv"' + (opsN ? '' : ' disabled aria-disabled="true"') + '>Exporter les opérations (CSV)</button>' +
+      '<button type="button" class="btn" data-action="import-json">Importer un fichier JSON</button>' +
+      '<button type="button" class="btn btn-danger" data-action="reset-all">Tout effacer</button></div>' +
+      '<div class="card warn-card" style="margin-top:14px;padding:12px 14px"><p class="small"><strong>Vos données restent sur cet appareil.</strong> Aucun serveur, aucun suivi, aucune requête réseau. ' +
+      'Elles sont enregistrées dans le stockage local du navigateur : elles peuvent être <strong>perdues</strong> si vous effacez les données de navigation, si vous utilisez la navigation privée, ' +
+      'ou être <strong>introuvables</strong> si vous ouvrez le fichier dans un autre navigateur ou depuis un autre emplacement. Sur iPhone, Safari peut aussi supprimer les données d\'un site non utilisé pendant plusieurs jours. ' +
+      'Faites régulièrement un <strong>export JSON</strong> et gardez-le dans Fichiers.</p></div></section>';
+
+    h += '<section class="card span-2" aria-labelledby="h-iphone"><h2 id="h-iphone" style="margin-bottom:4px">Utiliser l\'application sur iPhone</h2>' +
+      '<details class="help"><summary>1. Enregistrer le fichier dans l\'app Fichiers</summary><div class="content"><ol>' +
+        '<li>Depuis Safari, touchez le lien de téléchargement de <strong>mon_budget.html</strong>, puis « Télécharger ».</li>' +
+        '<li>Le fichier arrive dans <strong>Fichiers › Téléchargements</strong> (emplacement réglable dans Réglages › Safari › Téléchargements).</li>' +
+        '<li>Depuis un e-mail ou une messagerie : touchez la pièce jointe, puis le bouton Partager › « Enregistrer dans Fichiers ».</li></ol></div></details>' +
+      '<details class="help"><summary>2. Le conserver « Sur mon iPhone »</summary><div class="content"><ol>' +
+        '<li>Ouvrez l\'app <strong>Fichiers</strong> › onglet <strong>Parcourir</strong> › <strong>Sur mon iPhone</strong>.</li>' +
+        '<li>Créez un dossier « Budget » (bouton « … » › Nouveau dossier).</li>' +
+        '<li>Retrouvez mon_budget.html, faites un appui long › <strong>Déplacer</strong> › Sur mon iPhone › Budget.</li>' +
+        '<li>« Sur mon iPhone » garde le fichier sur l\'appareil, sans synchronisation iCloud. Rangez-y aussi vos exports JSON.</li></ol></div></details>' +
+      '<details class="help"><summary>3. Ouvrir le fichier : ce qu\'il faut savoir</summary><div class="content"><ul>' +
+        '<li>Toucher le fichier dans Fichiers ouvre un <strong>aperçu</strong>. Selon la version d\'iOS, cet aperçu peut afficher la page sans conserver les données entre deux ouvertures.</li>' +
+        '<li>Safari sur iPhone ne permet généralement pas d\'ouvrir directement un fichier HTML enregistré dans Fichiers comme une page web.</li>' +
+        '<li>Vérifiez l\'indicateur <strong>Stockage local</strong> ci-dessus, ajoutez une opération test, fermez puis rouvrez : si elle a disparu, le stockage n\'est pas conservé dans ce mode d\'ouverture. Utilisez alors l\'export/import JSON, ou la version hébergée décrite ci-dessous.</li>' +
+        '<li>Sur ordinateur (Mac ou PC), un double-clic ouvre le fichier dans le navigateur et les données sont bien conservées dans ce navigateur.</li></ul></div></details>' +
+      '<details class="help"><summary>4. Fichier local ou véritable web-app ?</summary><div class="content"><ul>' +
+        '<li><strong>Fichier HTML local</strong> : ouvert depuis le stockage de l\'appareil. Pas d\'icône sur l\'écran d\'accueil, comportement du stockage variable selon l\'application qui l\'ouvre.</li>' +
+        '<li><strong>Web-app installée</strong> : la page est servie depuis une adresse <strong>HTTPS</strong> ; dans Safari, Partager › « Sur l\'écran d\'accueil » crée une icône qui l\'ouvre en plein écran.</li>' +
+        '<li>Un simple fichier HTML <strong>ne peut pas</strong> à lui seul s\'installer comme une PWA complète. Pour une icône et un fonctionnement hors ligne fiables, il faut héberger l\'application en HTTPS avec un <strong>manifeste</strong> (manifest.webmanifest) et un <strong>service worker</strong>.</li>' +
+        '<li>Même hébergée, l\'application garderait vos données uniquement sur votre téléphone (stockage local), sans serveur de base de données. Attention : la web-app de l\'écran d\'accueil et Safari ont des stockages séparés.</li></ul></div></details>' +
+      '</section>';
+
+    h += '<section class="card span-2"><p class="tiny muted">Mon Budget · version ' + APP_VERSION + ' · fichier autonome sans dépendance externe.</p></section></div>';
+    $('#view-settings').innerHTML = h;
+  }
+
+  /* =======================================================================
+     RENDU GLOBAL ET NAVIGATION
+     ======================================================================= */
+  function render() {
+    $('#view-title').textContent = VIEWS[ui.view];
+    document.title = VIEWS[ui.view] + ' · Mon Budget';
+    $('#month-switch').hidden = !MONTH_VIEWS.includes(ui.view) || (ui.view === 'budget' && ui.budgetTab === 'week');
+    $('#month-label').textContent = labelMonth(ui.month);
+    document.querySelectorAll('.tab').forEach(b => {
+      if (b.dataset.view === ui.view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    Object.keys(VIEWS).forEach(v => { $('#view-' + v).hidden = v !== ui.view; });
+    renderDashboard(); renderOperations(); renderBudget(); renderGoals(); renderStats(); renderSettings();
+  }
+  function navigate(view) {
+    if (!VIEWS[view]) return;
+    ui.view = view;
+    ui.editEnv = false;
+    render();
+    window.scrollTo(0, 0);
+    $('#view-title').focus({ preventScroll: true });
+  }
+
+  function applyTheme() {
+    const t = state.prefs.theme;
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    const dark = t === 'dark' || (t === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    $('#meta-theme-color').setAttribute('content', dark ? '#0a0e0c' : '#f3f5f4');
+  }
+
+  /* =======================================================================
+     NOTIFICATIONS ET DIALOGUES
+     ======================================================================= */
+  let toastTimer = null;
+  function toast(msg, type, action) {
+    const wrap = $('#toast-wrap');
+    wrap.innerHTML = '';
+    const el = document.createElement('div');
+    el.className = 'toast ' + (type || '');
+    const span = document.createElement('span');
+    span.textContent = msg;
+    el.appendChild(span);
+    if (action) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = action.label;
+      b.addEventListener('click', () => { action.fn(); wrap.innerHTML = ''; });
+      el.appendChild(b);
+    }
+    wrap.appendChild(el);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { wrap.innerHTML = ''; }, action ? 6000 : 4000);
+  }
+  function openDialog(d) { if (typeof d.showModal === 'function') { if (!d.open) d.showModal(); } else d.setAttribute('open', ''); }
+  function closeDialog(d) { if (typeof d.close === 'function') d.close(); else d.removeAttribute('open'); }
+
+  function confirmDialog(title, message, okLabel) {
+    const d = $('#dlg-confirm');
+    if (typeof d.showModal !== 'function') return Promise.resolve(window.confirm(title + '\n\n' + message));
+    $('#dlg-confirm-title').textContent = title;
+    $('#dlg-confirm-msg').textContent = message;
+    $('#dlg-confirm-ok').textContent = okLabel || 'Confirmer';
+    d.returnValue = '';
+    return new Promise(resolve => {
+      d.addEventListener('close', () => resolve(d.returnValue === 'ok'), { once: true });
+      d.showModal();
+    });
+  }
+
+  /* ---------- Formulaire d'opération ---------- */
+  const TYPE_HELP = {
+    expense: 'Une dépense de consommation : elle réduit le budget et le disponible du compte.',
+    income: 'Un revenu en plus du salaire : il augmente le disponible du compte.',
+    saving: 'Un transfert vers l\'épargne n\'est pas une dépense : il réduit le disponible du compte et augmente l\'épargne choisie.'
+  };
+  const opType = () => (document.querySelector('input[name="op-type"]:checked') || {}).value || 'expense';
+  function fillOpCats(type, selected) {
+    $('#op-cat').innerHTML = TYPES[type].cats.map(c => '<option value="' + c.id + '"' + (c.id === selected ? ' selected' : '') + '>' + c.icon + ' ' + esc(c.label) + '</option>').join('');
+    $('#op-type-help').textContent = TYPE_HELP[type];
+  }
+  function openOpForm(opts) {
+    opts = opts || {};
+    const op = opts.id ? state.operations.find(o => o.id === opts.id) : null;
+    ui.editingOpId = op ? op.id : null;
+    const type = op ? op.type : (opts.type || 'expense');
+    document.querySelectorAll('input[name="op-type"]').forEach(r => { r.checked = r.value === type; });
+    fillOpCats(type, op ? op.category : opts.cat);
+    $('#dlg-op-title').textContent = op ? 'Modifier l\'opération' : 'Nouvelle opération';
+    $('#op-amount').value = op ? toInput(op.amount) : '';
+    $('#op-amount').setAttribute('aria-invalid', 'false');
+    // Par défaut : aujourd'hui, ou le 1er du mois affiché si ce n'est pas le mois en cours
+    $('#op-date').value = op ? op.date : (ui.month === monthOf(todayISO()) ? todayISO() : ui.month + '-01');
+    $('#op-desc').value = op ? op.description : '';
+    $('#op-error').textContent = '';
+    openDialog($('#dlg-op'));
+    setTimeout(() => $('#op-amount').focus(), 50);
+  }
+  function submitOp(e) {
+    e.preventDefault();
+    const type = opType();
+    const amount = parseAmount($('#op-amount').value, false);
+    const date = $('#op-date').value;
+    const category = $('#op-cat').value;
+    const description = $('#op-desc').value.trim().slice(0, 200);
+    const errEl = $('#op-error');
+    $('#op-amount').setAttribute('aria-invalid', 'false');
+    if (amount === null) { errEl.textContent = 'Montant invalide : saisissez un nombre positif (ex. 25 ou 12,50), au maximum 1 000 000 €.'; $('#op-amount').setAttribute('aria-invalid', 'true'); $('#op-amount').focus(); return; }
+    if (!isValidISO(date)) { errEl.textContent = 'Date invalide (format attendu : AAAA-MM-JJ).'; $('#op-date').focus(); return; }
+    if (!CAT_INDEX[type + ':' + category]) { errEl.textContent = 'Choisissez une catégorie.'; return; }
+    if (ui.editingOpId) {
+      const op = state.operations.find(o => o.id === ui.editingOpId);
+      if (!op) { errEl.textContent = 'Cette opération n\'existe plus.'; return; }
+      Object.assign(op, { type, amount, date, category, description });
+    } else {
+      state.operations.push({ id: uid(), type, amount, date, category, description, createdAt: Date.now() });
+    }
+    const wasEdit = !!ui.editingOpId;
+    ui.editingOpId = null;
+    save();
+    closeDialog($('#dlg-op'));
+    render();
+    // Alerte de dépassement : informative, n'empêche pas l'enregistrement
+    if (type === 'expense') {
+      const ms = monthStats(monthOf(date)), bd = state.budgets[category] || 0, sp = ms.byCat[category] || 0;
+      if (sp > bd) { toast('⚠️ Enveloppe « ' + catOf(type, category).label + ' » dépassée de ' + fmt(sp - bd) + '. Dépense enregistrée.', 'warn'); return; }
+    }
+    toast(wasEdit ? 'Opération modifiée.' : (type === 'saving' ? 'Versement de ' + fmt(amount) + ' ajouté à « ' + catOf(type, category).label + ' ».' : 'Opération enregistrée.'));
+  }
+
+  async function deleteOp(id) {
+    const op = state.operations.find(o => o.id === id);
+    if (!op) return;
+    const ok = await confirmDialog('Supprimer cette opération ?', (op.description || catOf(op.type, op.category).label) + ' · ' + fmt(op.amount) + ' · ' + labelDate(op.date), 'Supprimer');
+    if (!ok) return;
+    const idx = state.operations.indexOf(op);
+    state.operations.splice(idx, 1);
+    save(); render();
+    toast('Opération supprimée.', '', { label: 'Annuler', fn: () => { state.operations.splice(Math.min(idx, state.operations.length), 0, op); save(); render(); toast('Suppression annulée.'); } });
+  }
+
+  /* ---------- Objectifs ---------- */
+  function openGoalForm(id) {
+    const g = state.goals[id];
+    $('#goal-id').value = id;
+    $('#goal-name').value = g.name;
+    $('#goal-target').value = toInput(g.target);
+    $('#goal-monthly').value = toInput(g.monthly);
+    $('#goal-deadline').value = g.deadline || '';
+    $('#goal-start').value = toInput(g.start);
+    $('#goal-include-start').checked = !!g.includeStart;
+    $('#goal-error').textContent = '';
+    openDialog($('#dlg-goal'));
+  }
+  function submitGoal(e) {
+    e.preventDefault();
+    const id = $('#goal-id').value, g = state.goals[id];
+    if (!g) return;
+    const name = $('#goal-name').value.trim().slice(0, 60);
+    const target = parseAmount($('#goal-target').value, true);
+    const monthly = parseAmount($('#goal-monthly').value, true);
+    const start = parseAmount($('#goal-start').value, true);
+    const deadline = $('#goal-deadline').value;
+    const err = $('#goal-error');
+    if (!name) { err.textContent = 'Donnez un nom à l\'objectif.'; return; }
+    if (target === null || monthly === null || start === null) { err.textContent = 'Montants invalides : nombres positifs uniquement (ex. 4200 ou 700,00).'; return; }
+    if (deadline && !isValidISO(deadline)) { err.textContent = 'Échéance invalide.'; return; }
+    Object.assign(g, { name, target, monthly, start, deadline: deadline || '', includeStart: $('#goal-include-start').checked });
+    save(); closeDialog($('#dlg-goal')); render();
+    toast('Objectif mis à jour.');
+  }
+
+  /* ---------- Enveloppes ---------- */
+  function saveEnvelopes() {
+    const r = readEnvInputs();
+    if (!r.valid) { updateEnvSummary(); toast('Corrigez les montants invalides avant d\'enregistrer.', 'error'); return; }
+    document.querySelectorAll('.env-input').forEach(inp => {
+      const v = parseAmount(inp.value, true);
+      if (inp.dataset.kind === 'salary') state.salary = v;
+      else if (inp.dataset.kind === 'expense') state.budgets[inp.dataset.id] = v;
+      else if (inp.dataset.kind === 'saving') state.goals[inp.dataset.id].monthly = v;
+    });
+    ui.editEnv = false;
+    save(); render();
+    const diff = state.salary - envelopesTotal();
+    toast('Budgets enregistrés. ' + (diff === 0 ? 'Total équilibré avec le salaire.' : diff > 0 ? 'Non affecté : ' + fmt(diff) + '.' : 'Dépassement du salaire : ' + fmt(-diff) + '.'), diff < 0 ? 'warn' : '');
+  }
+
+  /* ---------- Exports / import ---------- */
+  function download(name, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+  // Cellule CSV : guillemets échappés + neutralisation des formules (=, +, -, @) pour les tableurs
+  function csvCell(v) {
+    let s = String(v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  function buildCSV() {
+    const head = ['Date', 'Type', 'Catégorie', 'Description', 'Montant (€)'];
+    const lines = sortOps(state.operations).reverse().map(o => [o.date, TYPES[o.type].label, catOf(o.type, o.category).label, o.description, toInput(o.amount)].map(csvCell).join(';'));
+    return '﻿' + head.map(csvCell).join(';') + '\r\n' + lines.join('\r\n') + '\r\n';
+  }
+  function exportCSV() {
+    if (!state.operations.length) { toast('Aucune opération à exporter.'); return; }
+    download('mon_budget_operations_' + todayISO() + '.csv', buildCSV(), 'text/csv;charset=utf-8');
+    toast('Export CSV généré (' + state.operations.length + ' opérations).');
+  }
+  function buildJSON() {
+    return JSON.stringify({ app: 'mon_budget', format: 1, appVersion: APP_VERSION, exportedAt: new Date().toISOString(), data: state }, null, 2);
+  }
+  function exportJSON() {
+    state.prefs.lastExport = new Date().toISOString();
+    const content = buildJSON();
+    save();
+    download('mon_budget_sauvegarde_' + todayISO() + '.json', content, 'application/json');
+    render();
+    toast('Sauvegarde JSON générée. Rangez-la dans Fichiers › Sur mon iPhone.');
+  }
+  function importJSONText(text) {
+    let parsed;
+    try { parsed = JSON.parse(text); } catch (e) { return { ok: false, errors: ['Le fichier n\'est pas un JSON valide.'] }; }
+    return validateData(parsed);
+  }
+  async function handleImportFile(file) {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast('Fichier trop volumineux (5 Mo maximum).', 'error'); return; }
+    let text;
+    try { text = await file.text(); } catch (e) { toast('Impossible de lire le fichier.', 'error'); return; }
+    const res = importJSONText(text);
+    if (!res.ok) { toast('Import refusé : ' + res.errors.slice(0, 3).join(' '), 'error'); return; }
+    const ok = await confirmDialog('Remplacer toutes les données ?', 'Le fichier contient ' + res.state.operations.length + ' opération(s). Vos données actuelles (' + state.operations.length + ' opération(s)) seront remplacées. Pensez à exporter d\'abord si besoin.', 'Importer');
+    if (!ok) return;
+    state = res.state;
+    state.setupDone = true;
+    save(); applyTheme(); render();
+    toast('Import réussi : ' + state.operations.length + ' opération(s) restaurée(s).');
+  }
+  async function resetAll() {
+    const ok = await confirmDialog('Tout effacer ?', 'Toutes vos opérations, budgets, objectifs et préférences seront définitivement supprimés de cet appareil. Cette action est irréversible. Exportez vos données avant si vous souhaitez les conserver.', 'Tout effacer');
+    if (!ok) return;
+    try { if (storageOK) localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignoré */ }
+    state = defaultState();
+    ui.month = monthOf(todayISO());
+    applyTheme(); render();
+    toast('Toutes les données ont été effacées.');
+    openSetup();
+  }
+
+  /* ---------- Première utilisation ---------- */
+  function openSetup() {
+    $('#setup-salary').value = toInput(state.salary);
+    $('#setup-car').value = ''; $('#setup-safety').value = '';
+    $('#setup-error').textContent = '';
+    openDialog($('#dlg-setup'));
+  }
+  function submitSetup(e) {
+    e.preventDefault();
+    const salary = parseAmount($('#setup-salary').value, false);
+    const car = parseAmount($('#setup-car').value, true);
+    const safety = parseAmount($('#setup-safety').value, true);
+    if (salary === null || car === null || safety === null) { $('#setup-error').textContent = 'Montants invalides : nombres positifs uniquement (ex. 320 ou 150,50).'; return; }
+    const today = todayISO();
+    state.salary = salary;
+    state.goals.car.start = car;
+    state.goals.safety.start = safety;
+    state.createdAt = today;
+    state.goals.car.deadline = addMonthsISO(today, 6);
+    state.goals.safety.deadline = addMonthsISO(today, 6);
+    state.setupDone = true;
+    save(); closeDialog($('#dlg-setup')); render();
+    toast('C\'est parti ! Ajoutez votre première opération avec le bouton +.');
+  }
+
+  function submitProfile(e) {
+    e.preventDefault();
+    const salary = parseAmount($('#set-salary').value, true);
+    const starts = SAVING_CATS.map(c => parseAmount($('#set-start-' + c.id).value, true));
+    if (salary === null || starts.some(v => v === null)) { $('#profile-error').textContent = 'Montants invalides : nombres positifs uniquement.'; return; }
+    state.salary = salary;
+    SAVING_CATS.forEach((c, i) => { state.goals[c.id].start = starts[i]; });
+    save(); render();
+    toast('Profil enregistré.');
+  }
+
+  /* =======================================================================
+     ÉVÉNEMENTS (délégation : chaque bouton a une action réelle)
+     ======================================================================= */
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el || el.disabled) return;
+    const a = el.dataset.action;
+    switch (a) {
+      case 'nav': navigate(el.dataset.view); break;
+      case 'month-prev': ui.month = shiftMonth(ui.month, -1); ui.editEnv = false; render(); break;
+      case 'month-next': ui.month = shiftMonth(ui.month, 1); ui.editEnv = false; render(); break;
+      case 'month-today': ui.month = monthOf(todayISO()); render(); break;
+      case 'add-op': openOpForm(); break;
+      case 'edit-op': openOpForm({ id: el.dataset.id }); break;
+      case 'delete-op': deleteOp(el.dataset.id); break;
+      case 'dlg-close': closeDialog(el.closest('dialog')); break;
+      case 'budget-tab': ui.budgetTab = el.dataset.tab; ui.editEnv = false; render(); break;
+      case 'env-edit': ui.editEnv = true; renderBudget(); { const f = document.querySelector('.env-input'); if (f) f.focus(); } break;
+      case 'env-cancel': ui.editEnv = false; renderBudget(); break;
+      case 'env-save': saveEnvelopes(); break;
+      case 'goal-add': openOpForm({ type: 'saving', cat: el.dataset.goal }); break;
+      case 'goal-edit': openGoalForm(el.dataset.goal); break;
+      case 'theme': state.prefs.theme = el.dataset.theme; save(); applyTheme(); renderSettings(); break;
+      case 'export-csv': exportCSV(); break;
+      case 'export-json': exportJSON(); break;
+      case 'import-json': $('#import-file').value = ''; $('#import-file').click(); break;
+      case 'reset-all': resetAll(); break;
+      case 'reset-filters':
+        $('#f-search').value = ''; $('#f-month').value = 'all'; $('#f-cat').value = 'all'; $('#f-type').value = 'all'; renderOpResults(); break;
+    }
+  });
+  document.addEventListener('input', e => { if (e.target.classList.contains('env-input')) updateEnvSummary(); });
+  document.addEventListener('submit', e => { if (e.target.id === 'form-profile') submitProfile(e); });
+  $('#form-op').addEventListener('submit', submitOp);
+  $('#form-goal').addEventListener('submit', submitGoal);
+  $('#form-setup').addEventListener('submit', submitSetup);
+  $('#dlg-setup').addEventListener('cancel', e => e.preventDefault()); // la saisie initiale est requise (0 accepté)
+  document.querySelectorAll('input[name="op-type"]').forEach(r => r.addEventListener('change', () => fillOpCats(opType())));
+  $('#import-file').addEventListener('change', e => handleImportFile(e.target.files && e.target.files[0]));
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    (mq.addEventListener ? mq.addEventListener.bind(mq, 'change') : mq.addListener.bind(mq))(applyTheme);
+  }
+  // Synchronisation si l'application est ouverte dans deux onglets
+  window.addEventListener('storage', e => { if (e.key === STORAGE_KEY) { state = load(); applyTheme(); render(); } });
+
+  /* =======================================================================
+     DÉMARRAGE
+     ======================================================================= */
+  state = load();
+  if (!storageOK) $('#storage-banner').hidden = false;
+  initOpFilters();
+  applyTheme();
+  render();
+  if (loadError) toast(loadError, 'error');
+  if (!state.setupDone) openSetup();
+
+  // Interface de lecture seule pour les tests automatisés (aucune écriture possible)
+  window.MonBudget = Object.freeze({
+    version: APP_VERSION,
+    snapshot: () => JSON.parse(JSON.stringify(state)),
+    monthStats: key => monthStats(key),
+    goal: id => goalView(id),
+    envelopesTotal: () => envelopesTotal(),
+    buildCSV: () => buildCSV(),
+    buildJSON: () => buildJSON(),
+    parseAmount: (s, z) => parseAmount(s, z)
+  });
+})();
+</script>
+</body>
+</html>
